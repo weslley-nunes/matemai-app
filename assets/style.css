@@ -1,0 +1,583 @@
+/* Headings */
+h1,
+h2,
+h3 {
+    color: #3c3c3c !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Mission Cards */
+.mission-card {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 6px 0px #e5e5e5;
+    /* "3D" button look */
+    text-align: center;
+    margin-bottom: 25px;
+    border: 2px solid #e5e5e5;
+    transition: transform 0.1s, box-shadow 0.1s;
+    color: #4b4b4b;
+}
+
+.mission-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0px #d4d4d4;
+}
+
+.mission-card h3 {
+    color: #3c3c3c;
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+}
+
+.mission-card p {
+    font-size: 1.1rem;
+    color: #777;
+}
+
+/* Unlocked Card (Active) */
+.mission-card.unlocked {
+    border-color: #0047AB;
+    box-shadow: 0 6px 0px #003380;
+}
+
+.mission-card.unlocked h3 {
+    color: #0047AB;
+}
+
+/* Locked Card */
+.mission-card.locked {
+    background-color: #f0f0f0;
+    border-color: #e0e0e0;
+    box-shadow: none;
+    opacity: 0.7;
+}
+
+/* Buttons */
+.stButton button {
+    background-color: #0047AB;
+    color: white;
+    border-radius: 12px;
+    border: none;
+    border-bottom: 4px solid #003380;
+    /* 3D effect */
+    padding: 12px 24px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    width: 100%;
+    transition: all 0.1s;
+}
+
+.stButton button:hover {
+    background-color: #0056b3;
+    border-bottom: 4px solid #003380;
+    transform: translateY(1px);
+    color: white;
+}
+
+.stButton button:active {
+    border-bottom: 0px;
+    transform: translateY(4px);
+}
+
+/* Logo Glow */
+.logo-glow {
+    filter: drop-shadow(0 0 8px rgba(0, 191, 255, 0.6));
+    transition: filter 0.3s ease;
+}
+
+.logo-glow:hover {
+    filter: drop-shadow(0 0 12px rgba(0, 191, 255, 0.9));
+}
+
+/* Enlarge Streamlit Logo Area - LARGER SIZE */
+[data-testid="stLogo"] {
+    height: 12rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 1.5rem !important;
+    padding: 0.5rem !important;
+}
+
+[data-testid="stLogo"] img {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    max-width: 100% !important;
+    max-height: 12rem !important;
+}
+
+/* Additional targeting for logo container */
+[data-testid="stLogo"]>a,
+[data-testid="stLogo"]>div {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Headings */
+h1,
+h2,
+h3 {
+    color: #3c3c3c !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Mission Cards */
+.mission-card {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 6px 0px #e5e5e5;
+    /* "3D" button look */
+    text-align: center;
+    margin-bottom: 25px;
+    border: 2px solid #e5e5e5;
+    transition: transform 0.1s, box-shadow 0.1s;
+    color: #4b4b4b;
+}
+
+.mission-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0px #d4d4d4;
+}
+
+.mission-card h3 {
+    color: #3c3c3c;
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+}
+
+.mission-card p {
+    font-size: 1.1rem;
+    color: #777;
+}
+
+/* Unlocked Card (Active) */
+.mission-card.unlocked {
+    border-color: #0047AB;
+    box-shadow: 0 6px 0px #003380;
+}
+
+.mission-card.unlocked h3 {
+    color: #0047AB;
+}
+
+/* Locked Card */
+.mission-card.locked {
+    background-color: #f0f0f0;
+    border-color: #e0e0e0;
+    box-shadow: none;
+    opacity: 0.7;
+}
+
+/* Buttons */
+.stButton button {
+    background-color: #0047AB;
+    color: white;
+    border-radius: 12px;
+    border: none;
+    border-bottom: 4px solid #003380;
+    /* 3D effect */
+    padding: 12px 24px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    width: 100%;
+    transition: all 0.1s;
+}
+
+.stButton button:hover {
+    background-color: #0056b3;
+    border-bottom: 4px solid #003380;
+    transform: translateY(1px);
+    color: white;
+}
+
+.stButton button:active {
+    border-bottom: 0px;
+    transform: translateY(4px);
+}
+
+/* Logo Glow */
+.logo-glow {
+    filter: drop-shadow(0 0 8px rgba(0, 191, 255, 0.6));
+    transition: filter 0.3s ease;
+}
+
+.logo-glow:hover {
+    filter: drop-shadow(0 0 12px rgba(0, 191, 255, 0.9));
+}
+
+/* Enlarge Streamlit Logo Area - LARGER SIZE */
+[data-testid="stLogo"] {
+    height: 12rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 1.5rem !important;
+    padding: 0.5rem !important;
+}
+
+[data-testid="stLogo"] img {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    max-width: 100% !important;
+    max-height: 12rem !important;
+}
+
+/* Additional targeting for logo container */
+[data-testid="stLogo"]>a,
+[data-testid="stLogo"]>div {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Force sidebar logo size */
+section[data-testid="stSidebar"] [data-testid="stLogo"] {
+    height: 12rem !important;
+    min-height: 12rem !important;
+}
+
+/* Profile Photo Frame - CENTERED */
+.profile-photo-frame {
+    border: 3px solid #0047AB;
+    border-radius: 15px;
+    padding: 3px;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    display: block;
+    margin: 0 auto 15px auto;
+    text-align: center;
+    width: fit-content;
+}
+
+.profile-photo-frame img {
+    border-radius: 12px;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Login Screen Styles */
+.login-title {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #4b4b4b;
+    text-align: center;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.login-subtitle {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 1.2rem;
+    color: #777;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+/* Custom Green Button (COMECE AGORA) */
+.btn-green {
+    display: block;
+    width: 100%;
+    background-color: #58cc02;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    border-radius: 15px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    border: none;
+    border-bottom: 5px solid #46a302;
+    /* 3D effect */
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.1s;
+    margin-bottom: 15px;
+}
+
+.btn-green:hover {
+    background-color: #61e002;
+    transform: translateY(2px);
+    border-bottom: 3px solid #46a302;
+}
+
+.btn-green:active {
+    border-bottom: 0;
+    transform: translateY(5px);
+}
+
+/* Custom Gray Button (JÁ TENHO UMA CONTA) */
+.btn-gray {
+    display: block;
+    width: 100%;
+    background-color: #ffffff;
+    color: #1cb0f6;
+    text-align: center;
+    padding: 15px 0;
+    border-radius: 15px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    border: 2px solid #e5e5e5;
+    border-bottom: 5px solid #e5e5e5;
+    /* 3D effect */
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.1s;
+}
+
+.btn-gray:hover {
+    .mission-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 0px #d4d4d4;
+    }
+
+    .mission-card h3 {
+        color: #3c3c3c;
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+    }
+
+    .mission-card p {
+        font-size: 1.1rem;
+        color: #777;
+    }
+
+    /* Unlocked Card (Active) */
+    .mission-card.unlocked {
+        border-color: #0047AB;
+        box-shadow: 0 6px 0px #003380;
+    }
+
+    .mission-card.unlocked h3 {
+        color: #0047AB;
+    }
+
+    /* Locked Card */
+    .mission-card.locked {
+        background-color: #f0f0f0;
+        border-color: #e0e0e0;
+        box-shadow: none;
+        opacity: 0.7;
+    }
+
+    /* Buttons */
+    .stButton button {
+        background-color: #0047AB;
+        color: white;
+        border-radius: 12px;
+        border: none;
+        border-bottom: 4px solid #003380;
+        /* 3D effect */
+        padding: 12px 24px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        width: 100%;
+        transition: all 0.1s;
+    }
+
+    .stButton button:hover {
+        background-color: #0056b3;
+        border-bottom: 4px solid #003380;
+        transform: translateY(1px);
+        color: white;
+    }
+
+    .stButton button:active {
+        border-bottom: 0px;
+        transform: translateY(4px);
+    }
+
+    /* Logo Glow */
+    .logo-glow {
+        filter: drop-shadow(0 0 8px rgba(0, 191, 255, 0.6));
+        transition: filter 0.3s ease;
+    }
+
+    .logo-glow:hover {
+        filter: drop-shadow(0 0 12px rgba(0, 191, 255, 0.9));
+    }
+
+    /* Enlarge Streamlit Logo Area - LARGER SIZE */
+    [data-testid="stLogo"] {
+        height: 12rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 1.5rem !important;
+        padding: 0.5rem !important;
+    }
+
+    [data-testid="stLogo"] img {
+        width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+        max-width: 100% !important;
+        max-height: 12rem !important;
+    }
+
+    /* Additional targeting for logo container */
+    [data-testid="stLogo"]>a,
+    [data-testid="stLogo"]>div {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* Force sidebar logo size */
+    section[data-testid="stSidebar"] [data-testid="stLogo"] {
+        height: 12rem !important;
+        min-height: 12rem !important;
+    }
+
+    /* Profile Photo Frame - CENTERED */
+    .profile-photo-frame {
+        border: 3px solid #0047AB;
+        border-radius: 15px;
+        padding: 3px;
+        background: white;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        display: block;
+        margin: 0 auto 15px auto;
+        text-align: center;
+        width: fit-content;
+    }
+
+    .profile-photo-frame img {
+        border-radius: 12px;
+        display: block;
+        margin: 0 auto;
+    }
+
+    /* Login Screen Styles */
+    .login-title {
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #4b4b4b;
+        text-align: center;
+        line-height: 1.2;
+        margin-bottom: 20px;
+    }
+
+    .login-subtitle {
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 1.2rem;
+        color: #777;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    /* Custom Green Button (COMECE AGORA) */
+    .btn-green {
+        display: block;
+        width: 100%;
+        background-color: #58cc02;
+        color: white;
+        text-align: center;
+        padding: 15px 0;
+        border-radius: 15px;
+        font-weight: 800;
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        border: none;
+        border-bottom: 5px solid #46a302;
+        /* 3D effect */
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.1s;
+        margin-bottom: 15px;
+    }
+
+    .btn-green:hover {
+        background-color: #61e002;
+        transform: translateY(2px);
+        border-bottom: 3px solid #46a302;
+    }
+
+    .btn-green:active {
+        border-bottom: 0;
+        transform: translateY(5px);
+    }
+
+    /* Custom Gray Button (JÁ TENHO UMA CONTA) */
+    .btn-gray {
+        display: block;
+        width: 100%;
+        background-color: #ffffff;
+        color: #1cb0f6;
+        text-align: center;
+        padding: 15px 0;
+        border-radius: 15px;
+        font-weight: 800;
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        border: 2px solid #e5e5e5;
+        border-bottom: 5px solid #e5e5e5;
+        /* 3D effect */
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.1s;
+    }
+
+    .btn-gray:hover {
+        background-color: #f7f7f7;
+        transform: translateY(2px);
+        border-bottom: 3px solid #e5e5e5;
+    }
+
+    .btn-gray:active {
+        border-bottom: 0;
+        transform: translateY(5px);
+    }
+
+    /* --- MOBILE RESPONSIVENESS --- */
+    @media only screen and (max-width: 600px) {
+
+        /* Adjust headings for mobile */
+        h1 {
+            font-size: 2rem !important;
+        }
+
+        h2 {
+            font-size: 1.5rem !important;
+        }
+
+        h3 {
+            font-size: 1.2rem !important;
+        }
+
+        /* Adjust buttons for mobile touch targets */
+        .stButton button {
+            padding: 15px 20px;
+            font-size: 1rem;
+        }
+
+        /* Adjust mission cards */
+        .mission-card {
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* Adjust login buttons */
+        .btn-green,
+        .btn-gray {
+            font-size: 1rem;
+            padding: 12px 0;
+        }
+
+        /* Adjust logo size on mobile */
+        [data-testid="stLogo"] {
+            height: 8rem !important;
+        }
+
+        [data-testid="stLogo"] img {
+            max-height: 8rem !important;
+        }
+    }

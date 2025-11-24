@@ -1,0 +1,106 @@
+/* Loading Animation Styles */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Spinner personalizado */
+.stSpinner>div {
+    border-color: #FF6B6B !important;
+    border-top-color: transparent !important;
+}
+
+/* Animação de fade-in para elementos */
+.element-container {
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Animação para cards de missão */
+.mission-card {
+    transition: all 0.3s ease;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.mission-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Animação para botões */
+button {
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+/* Loading overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #FF6B6B;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Progress bar animado */
+.stProgress>div>div {
+    background: linear-gradient(90deg, #FF6B6B, #4ECDC4);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Mensagens de sucesso/erro com animação */
+.stSuccess,
+.stError,
+.stWarning,
+.stInfo {
+    animation: fadeIn 0.3s ease-in;
+}
