@@ -1,0 +1,140 @@
+/* Icon Trail Style */
+.challenges-container {
+    display: flex;
+    gap: 40px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.character-column {
+    flex: 0 0 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.character-gif {
+    width: 250px;
+    height: 250px;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    object-fit: cover;
+}
+
+.trail-column {
+    flex: 1;
+    position: relative;
+    padding: 40px 0;
+}
+
+.trail-line {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #4ECDC4 0%, #FF6B6B 100%);
+    transform: translateX(-50%);
+    z-index: 0;
+}
+
+.mission-icon-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin: 40px 0;
+    z-index: 1;
+}
+
+.mission-icon-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+    border: 4px solid #fff;
+}
+
+.mission-icon-img.locked {
+    filter: grayscale(100%) brightness(0.5);
+    border-color: #666;
+}
+
+.mission-icon-img.unlocked {
+    border-color: #4ECDC4;
+    animation: pulse-glow 2s infinite;
+}
+
+.mission-icon-img.completed {
+    border-color: #FFD93D;
+    opacity: 0.7;
+}
+
+.mission-icon-img:hover {
+    transform: scale(1.15);
+}
+
+.completed-check {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 30px;
+    height: 30px;
+    background: #4CAF50;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    border: 2px solid white;
+}
+
+.mission-tooltip-balloon {
+    position: absolute;
+    left: 120px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    min-width: 280px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.mission-icon-container:hover .mission-tooltip-balloon {
+    opacity: 1;
+    visibility: visible;
+    left: 100px;
+}
+
+.mission-tooltip-balloon::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 10px solid white;
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 4px 25px rgba(78, 205, 196, 0.8);
+    }
+}

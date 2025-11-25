@@ -1,0 +1,12 @@
+[Unit]
+Description=Streamlit App
+After=network.target
+
+[Service]
+User=SEU_USUARIO_LINUX
+WorkingDirectory=/home/SEU_USUARIO_LINUX/matemai-app
+ExecStart=/home/SEU_USUARIO_LINUX/matemai-app/venv/bin/streamlit run app.py --server.port 8501
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
