@@ -12,7 +12,8 @@ SCOPES = [
     'https://www.googleapis.com/auth/userinfo.email', 
     'https://www.googleapis.com/auth/userinfo.profile'
 ]
-REDIRECT_URI = "http://localhost:8501"
+# Load Redirect URI from environment or default to localhost
+REDIRECT_URI = os.getenv("REDIRECT_URI", "http://localhost:8501")
 
 def get_login_url():
     """
