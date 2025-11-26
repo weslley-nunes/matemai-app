@@ -13,7 +13,7 @@ if not st.session_state.user_profile:
     st.warning("Por favor, crie seu perfil primeiro!")
     st.stop()
 
-methodology = st.session_state.user_profile["methodology"]
+methodology = st.session_state.user_profile.get("methodology", "Standard")
 missions = get_missions(methodology, st.session_state.level)
 
 if not missions:
