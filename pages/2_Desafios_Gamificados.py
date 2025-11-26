@@ -228,6 +228,32 @@ st.markdown("""
     font-weight: bold;
     display: inline-block;
 }
+/* Floating Button */
+.floating-scroll-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background-color: #0047AB;
+    color: white !important;
+    border-radius: 50%;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 9999;
+    transition: transform 0.3s, background-color 0.3s;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    border: 2px solid white;
+}
+.floating-scroll-btn:hover {
+    transform: scale(1.1);
+    background-color: #003380;
+    color: white !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -292,6 +318,10 @@ with col_trail:
     current_mission = next((m for m in missions if m["status"] == "unlocked"), None)
     
     if current_mission:
+        # Anchor and Floating Button
+        st.markdown('<div id="proximo-desafio"></div>', unsafe_allow_html=True)
+        st.markdown('<a href="#proximo-desafio" class="floating-scroll-btn" title="Ir para o Próximo Desafio">⬇️</a>', unsafe_allow_html=True)
+        
         st.markdown("---")
         st.markdown("<h2 style='text-align: center; color: #0047AB;'>🚀 Próximo Desafio</h2>", unsafe_allow_html=True)
         
