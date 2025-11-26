@@ -1,7 +1,7 @@
 import streamlit as st
 from dotenv import load_dotenv
 load_dotenv()
-from utils import setup_app, get_ai_agent, show_sidebar
+from utils import setup_app, get_ai_agent, show_sidebar, get_img_as_base64
 from auth import login_with_google, check_authentication, logout
 from database import get_database
 
@@ -23,28 +23,6 @@ try:
     local_css("assets/loading.css")
 except FileNotFoundError:
     pass 
-
-# Initialize Session State
-setup_app(is_public_page=True)
-
-# Authentication Check
-if not check_authentication():
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        # Images side by side, vertically centered
-        img_col1, img_col2 = st.columns([0.8, 1.2], vertical_alignment="center")
-        with img_col1:
-            st.image("assets/mascot.png", width=200)
-        with img_col2:
-            st.image("assets/logo_matemai.png", use_container_width=True)
-            
-        # Check for OAuth Callback (Code in URL)
-        if "code" in st.query_params:
-            login_with_google()
-            
-        st.markdown('<p class="login-title" style="font-size: 3rem;">O jeito grátis, divertido e eficaz de aprender matemática!</p>', unsafe_allow_html=True)
-        # Get Login URL
-        from auth import get_login_url
         login_url = get_login_url()
         
         # Custom Buttons Side by Side (Centered)
