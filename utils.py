@@ -316,12 +316,10 @@ def load_user_progress(email):
     """
     Carrega o progresso do Firestore
     """
-    print(f"DEBUG: load_user_progress called for {email}")
     db = get_database()
     progress = db.load_progress(email)
     
     if progress:
-        print(f"DEBUG: Progress found in DB: {progress.keys()}")
         st.session_state.xp = progress['xp']
         st.session_state.level = progress['level']
         st.session_state.user_profile.update(progress['profile'])
@@ -343,8 +341,6 @@ def load_user_progress(email):
         # Streak Data
         st.session_state.last_study_date = progress.get('last_study_date', "")
         return True
-    
-    print("DEBUG: No progress found in DB.")
     return False
 
 def init_session_state():
@@ -418,27 +414,8 @@ def setup_app(is_public_page=False):
     # Inicializar Sessão
     init_session_state()
 
-    # Inactivity Timeout (15 minutes)
-    if st.session_state.get("logged_in"):
-        import time
-        current_time = time.time()
-        if "last_activity" in st.session_state:
-            if current_time - st.session_state.last_activity > 900: # 15 minutes = 900 seconds
-                from auth import logout
-                st.warning("⚠️ Sua sessão expirou por inatividade.")
-                # Clear state manually to avoid full rerun loop issues if logout triggers one
-                st.session_state.logged_in = False
-                st.session_state.user_profile = None
-                # Clear cookie if possible (requires rerun usually, but we can try)
-                # logout() calls rerun, so we should be good.
-                logout()
-                return # Stop execution
-        
-        st.session_state.last_activity = current_time
-
     # Enforce Authentication
-    from auth import check_authentication
-    if not is_public_page and not check_authentication():
+    if not is_public_page and not st.session_state.get("logged_in"):
         st.warning("🔒 Por favor, faça login para continuar.")
         st.switch_page("app.py")
         

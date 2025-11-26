@@ -6,4 +6,3 @@ google-generativeai
 python-dotenv
 firebase-admin
 mercadopago
-extra-streamlit-components
