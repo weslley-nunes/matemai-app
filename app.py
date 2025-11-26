@@ -23,21 +23,44 @@ try:
     local_css("assets/loading.css")
 except FileNotFoundError:
     pass 
-        login_url = get_login_url()
+# Initialize Session State
+setup_app(is_public_page=True)
+
+# Authentication Check
+if not check_authentication():
+    # Main Layout
+    col1, col2 = st.columns([1, 1])
+
+    with col1:
+        # Banner com Link
+        st.markdown("""
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSeIjjqbB1khH8BYm5wbQkI6dOIb797ovGQGdz-WjzdvfTaeeQ/viewform" target="_blank">
+                <img src="data:image/png;base64,{}" style="width: 100%; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s;">
+            </a>
+            <style>
+            img:hover {{
+                transform: scale(1.02);
+            }}
+            </style>
+        """.format(get_img_as_base64("assets/banner_pesquisa.png").split(",")[1]), unsafe_allow_html=True)
+
+        st.markdown("<h1 style='font-size: 3rem; margin-bottom: 0;'>Matem<span style='color: #0047AB;'>AI</span></h1>", unsafe_allow_html=True)
+        st.markdown("### O jeito grátis, divertido e eficaz de aprender matemática!")
         
-        # Custom Buttons Side by Side (Centered)
-        # Using columns to create spacing: [spacer, btn1, btn2, spacer]
-        c1, c2, c3, c4 = st.columns([1, 4, 4, 1])
+        st.markdown("---")
         
-        if login_url:
-            with c2:
-                # COMECE AGORA (Gray as requested)
-                st.link_button("COMECE AGORA", login_url)
-            
-            with c3:
-                # JÁ TENHO UMA CONTA (Blue)
-                st.link_button("JÁ TENHO UMA CONTA", login_url, type="primary")
-        else:
+        # Login Buttons
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("CRIAR UMA CONTA", type="secondary", use_container_width=True):
+                login_with_google()
+                
+        with c2:
+            if st.button("JÁ TENHO UMA CONTA", type="primary", use_container_width=True):
+                login_with_google()
+    
+    # Stop execution if not logged in
+    st.stop()
             st.error("Erro ao configurar login. Verifique as credenciais.")
             
         # Apply custom classes to buttons via JavaScript hack or just rely on Streamlit's limited styling for now + CSS injection
