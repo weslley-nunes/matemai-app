@@ -168,31 +168,33 @@ def clear_session_cookie():
 
 def restore_session_from_cookie():
     """Attempts to restore session from cookie"""
+    print("DEBUG: Attempting to restore session from cookie...")
     cookie_manager = get_cookie_manager()
     token = cookie_manager.get("auth_token")
     
-    if not token or "|" not in token:
+    if not token:
+        print("DEBUG: No auth_token cookie found.")
+        return False
+        
+    if "|" not in token:
+        print("DEBUG: Invalid token format.")
         return False
         
     email, signature = token.split("|", 1)
+    print(f"DEBUG: Found token for email: {email}")
     
     # Validate signature
     if sign_data(email) == signature:
+        print("DEBUG: Signature valid.")
         # Restore user
         try:
-            db = get_database()
-            user_data = db.get_user(email) # You might need to implement get_user in database.py or just load progress
-            
-            # If get_user doesn't exist, we can try loading progress which usually populates session state
-            # But we need basic profile info first. 
-            # Let's assume we can reconstruct basic profile or fetch it.
-            # For now, let's try to load progress and see if it populates user_profile
-            
             # Hack: If database.py doesn't have get_user, we might need to rely on load_user_progress
             # returning the profile data if it's stored there.
             
             from utils import load_user_progress
+            print(f"DEBUG: Loading progress for {email}...")
             if load_user_progress(email):
+                print("DEBUG: Progress loaded successfully.")
                 st.session_state.logged_in = True
                 # Ensure user_profile has email if load_user_progress didn't set it fully
                 if not st.session_state.user_profile:
@@ -201,10 +203,13 @@ def restore_session_from_cookie():
                     st.session_state.user_profile["email"] = email
                 
                 return True
+            else:
+                print("DEBUG: Failed to load user progress.")
         except Exception as e:
             print(f"Error restoring session: {e}")
             return False
             
+    print("DEBUG: Signature mismatch.")
     return False
 
 # Update check_authentication to use cookies

@@ -316,10 +316,12 @@ def load_user_progress(email):
     """
     Carrega o progresso do Firestore
     """
+    print(f"DEBUG: load_user_progress called for {email}")
     db = get_database()
     progress = db.load_progress(email)
     
     if progress:
+        print(f"DEBUG: Progress found in DB: {progress.keys()}")
         st.session_state.xp = progress['xp']
         st.session_state.level = progress['level']
         st.session_state.user_profile.update(progress['profile'])
@@ -341,6 +343,8 @@ def load_user_progress(email):
         # Streak Data
         st.session_state.last_study_date = progress.get('last_study_date', "")
         return True
+    
+    print("DEBUG: No progress found in DB.")
     return False
 
 def init_session_state():
