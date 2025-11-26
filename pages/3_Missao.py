@@ -80,8 +80,25 @@ st.info(problem['question'])
 if st.session_state.problem_solved:
     st.success("✅ Missão Cumprida!")
     st.balloons()
-    if st.button("Voltar para o Mapa"):
-        st.switch_page("pages/2_Desafios_Gamificados.py")
+    # Layout com dois botões
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("🔙 Voltar para o Mapa", use_container_width=True):
+            st.switch_page("pages/2_Desafios_Gamificados.py")
+            
+    # Encontrar a próxima missão desbloqueada
+    next_mission = next((m for m in st.session_state.missions if m["status"] == "unlocked"), None)
+    
+    if next_mission:
+        with col2:
+            if st.button("🚀 Próximo Desafio", type="primary", use_container_width=True):
+                st.session_state.current_mission = next_mission
+                st.session_state.problem_solved = False
+                # Limpar cache do problema anterior para gerar um novo
+                if "current_problem" in st.session_state:
+                    del st.session_state.current_problem
+                st.rerun()
 else:
     # Initialize attempt counter for current problem
     if "problem_attempts" not in st.session_state:
