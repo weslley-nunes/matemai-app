@@ -451,7 +451,25 @@ def show_sidebar():
     Displays the consistent sidebar with user info.
     """
 
+    # Hide default navigation
+    st.markdown("""
+        <style>
+            [data-testid="stSidebarNav"] {display: none;}
+        </style>
+    """, unsafe_allow_html=True)
+
     with st.sidebar:
+        # Custom Navigation
+        st.page_link("app.py", label="Início da Jornada", icon="🏠")
+        st.page_link("pages/1_Meu_Perfil.py", label="Meu Perfil", icon="👤")
+        st.page_link("pages/2_Desafios_Gamificados.py", label="Desafios Gamificados", icon="🗺️")
+        st.page_link("pages/3_Missao.py", label="Missão", icon="⚔️")
+        st.page_link("pages/4_Agenda_de_Estudos.py", label="Agenda de Estudos", icon="📅")
+        st.page_link("pages/5_Loja_de_XP.py", label="Loja de XP", icon="🛒")
+        st.page_link("pages/5_Ranking.py", label="Ranking", icon="🏆")
+        st.page_link("pages/6_Premium.py", label="Premium", icon="💎")
+        
+        st.markdown("---")
         avatar_url = None
         if st.session_state.user_profile and st.session_state.user_profile.get("avatar"):
             avatar_url = st.session_state.user_profile["avatar"]
