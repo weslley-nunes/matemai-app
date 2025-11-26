@@ -268,14 +268,14 @@ with col_trail:
         
         st.markdown(f'''
 <div class="mission-row">
-    <div class="mission-icon-wrapper">
-        <img src="{icon_src}" class="mission-icon {icon_class}" />
-        {check_html}
-        <div class="tooltip-balloon">
-            <div style="font-weight:bold; font-size:18px; margin-bottom:5px; color:#333;">{title}</div>
-            <div style="font-size:14px; color:#666; margin-bottom:10px;">{desc}</div>
-        </div>
-    </div>
+<div class="mission-icon-wrapper">
+<img src="{icon_src}" class="mission-icon {icon_class}" />
+{check_html}
+<div class="tooltip-balloon">
+<div style="font-weight:bold; font-size:18px; margin-bottom:5px; color:#333;">{title}</div>
+<div style="font-size:14px; color:#666; margin-bottom:10px;">{desc}</div>
+</div>
+</div>
 </div>
 ''', unsafe_allow_html=True)
         
@@ -303,9 +303,9 @@ with col_trail:
             
             st.markdown(f"""
 <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-    <div class="mission-icon-wrapper" style="transform: scale(1.2);">
-        <img src="{icon_b64}" class="mission-icon icon-unlocked" />
-    </div>
+<div class="mission-icon-wrapper" style="transform: scale(1.2);">
+<img src="{icon_b64}" class="mission-icon icon-unlocked" />
+</div>
 </div>
 """, unsafe_allow_html=True)
             
@@ -315,9 +315,9 @@ with col_trail:
             
             st.markdown(f'''
 <div class="pending-challenge-box">
-    <div class="pending-title">🎯 {title}</div>
-    <div class="pending-desc">{desc}</div>
-    <div class="pending-xp">+{current_mission["xp"]} XP</div>
+<div class="pending-title">🎯 {title}</div>
+<div class="pending-desc">{desc}</div>
+<div class="pending-xp">+{current_mission["xp"]} XP</div>
 </div>
 ''', unsafe_allow_html=True)
             
