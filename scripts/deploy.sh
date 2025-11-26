@@ -14,9 +14,13 @@ echo "Baixando alterações..."
 git pull origin main
 
 # Ativar ambiente virtual (se existir)
-if [ -d "venv" ]; then
+# Ativar ambiente virtual
+if [ -d ".venv" ]; then
+    source .venv/bin/activate
+    echo "Ambiente virtual .venv ativado."
+elif [ -d "venv" ]; then
     source venv/bin/activate
-    echo "Ambiente virtual ativado."
+    echo "Ambiente virtual venv ativado."
 fi
 
 # Instalar dependências
