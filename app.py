@@ -4,6 +4,7 @@ load_dotenv()
 from utils import setup_app, get_ai_agent, show_sidebar, get_img_as_base64
 from auth import login_with_google, check_authentication, logout
 from database import get_database
+import os
 
 # Page Config
 st.set_page_config(
@@ -28,14 +29,46 @@ setup_app(is_public_page=True)
 
 # Authentication Check
 if not check_authentication():
-    # Main Layout
-    col1, col2 = st.columns([1, 1])
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        # Images side by side, vertically centered
+        img_col1, img_col2 = st.columns([0.8, 1.2], vertical_alignment="center")
+        with img_col1:
+            if os.path.exists("assets/mascot.png"):
+                st.image("assets/mascot.png", width=200)
+        with img_col2:
+            if os.path.exists("assets/logo_matemai.png"):
+                st.image("assets/logo_matemai.png", use_container_width=True)
+            
+        # Check for OAuth Callback (Code in URL)
+        if "code" in st.query_params:
+            login_with_google()
+            
+        st.markdown('<p class="login-title" style="font-size: 3rem;">O jeito grátis, divertido e eficaz de aprender matemática!</p>', unsafe_allow_html=True)
+        # Get Login URL
+        from auth import get_login_url
+        login_url = get_login_url()
+        
+        # Custom Buttons Side by Side (Centered)
+        # Using columns to create spacing: [spacer, btn1, btn2, spacer]
+        c1, c2, c3, c4 = st.columns([1, 4, 4, 1])
+        
+        if login_url:
+            with c2:
+                # CRIAR UMA CONTA (Gray as requested)
+                st.link_button("CRIAR UMA CONTA", login_url)
+            
+            with c3:
+                # JÁ TENHO UMA CONTA (Blue)
+                st.link_button("JÁ TENHO UMA CONTA", login_url, type="primary")
+        else:
+            st.error("Erro ao configurar login. Verifique as credenciais.")
 
-    with col1:
-        # Banner com Link
+        # Banner com Link (Agora em baixo)
+        st.markdown("---")
         st.markdown("""
             <a href="https://docs.google.com/forms/d/e/1FAIpQLSeIjjqbB1khH8BYm5wbQkI6dOIb797ovGQGdz-WjzdvfTaeeQ/viewform" target="_blank">
-                <img src="data:image/png;base64,{}" style="width: 100%; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s;">
+                <img src="data:image/png;base64,{}" style="width: 100%; border-radius: 15px; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s;">
             </a>
             <style>
             img:hover {{
@@ -43,21 +76,6 @@ if not check_authentication():
             }}
             </style>
         """.format(get_img_as_base64("assets/banner_pesquisa.png").split(",")[1]), unsafe_allow_html=True)
-
-        st.markdown("<h1 style='font-size: 3rem; margin-bottom: 0;'>Matem<span style='color: #0047AB;'>AI</span></h1>", unsafe_allow_html=True)
-        st.markdown("### O jeito grátis, divertido e eficaz de aprender matemática!")
-        
-        st.markdown("---")
-        
-        # Login Buttons
-        c1, c2 = st.columns(2)
-        with c1:
-            if st.button("CRIAR UMA CONTA", type="secondary", use_container_width=True):
-                login_with_google()
-                
-        with c2:
-            if st.button("JÁ TENHO UMA CONTA", type="primary", use_container_width=True):
-                login_with_google()
     
     # Stop execution if not logged in
     st.stop()
