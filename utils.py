@@ -433,7 +433,8 @@ def setup_app(is_public_page=False):
         st.session_state.last_activity = current_time
 
     # Enforce Authentication
-    if not is_public_page and not st.session_state.get("logged_in"):
+    from auth import check_authentication
+    if not is_public_page and not check_authentication():
         st.warning("🔒 Por favor, faça login para continuar.")
         st.switch_page("app.py")
         
