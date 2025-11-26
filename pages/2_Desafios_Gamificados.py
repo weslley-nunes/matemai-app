@@ -13,7 +13,7 @@ if not st.session_state.user_profile:
     st.warning("Por favor, crie seu perfil primeiro!")
     st.stop()
 
-methodology = st.session_state.user_profile.get("methodology", "Standard")
+methodology = st.session_state.user_profile["methodology"]
 missions = get_missions(methodology, st.session_state.level)
 
 if not missions:
@@ -60,9 +60,11 @@ if completed_missions:
     # Summary
     total_skills = len(st.session_state.completed_bncc_skills)
     st.markdown(f"""
-        <div style="text-align: center; margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%); color: white; border-radius: 10px; font-weight: bold; font-size: 16px;">
-            🎓 {total_skills} Habilidade{'s' if total_skills != 1 else ''} Desenvolvida{'s' if total_skills != 1 else ''}
-        </div>
+        <a href="Meu_Perfil" target="_self" style="text-decoration: none;">
+            <div style="text-align: center; margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%); color: white; border-radius: 10px; font-weight: bold; font-size: 16px; transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                🎓 {total_skills} Habilidade{'s' if total_skills != 1 else ''} Desenvolvida{'s' if total_skills != 1 else ''} (Clique para ver detalhes)
+            </div>
+        </a>
     </div>
     """, unsafe_allow_html=True)
 else:

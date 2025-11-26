@@ -424,13 +424,13 @@ def setup_app(is_public_page=False):
         if check_claimable_rewards():
             st.markdown("""
             <div class="reward-popup">
-                <a href="Agenda_de_Estudos" target="_self" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
                     <div style="font-size: 30px; animation: bounce 2s infinite;">🎁</div>
                     <div>
                         <div style="font-weight: bold; color: #0047AB;">Recompensa Disponível!</div>
-                        <div style="font-size: 12px; color: #666;">Clique para resgatar</div>
+                        <div style="font-size: 12px; color: #666;">Cheque a agenda de estudos</div>
                     </div>
-                </a>
+                </div>
             </div>
             <style>
             .reward-popup {
@@ -444,12 +444,8 @@ def setup_app(is_public_page=False):
                 box-shadow: 0 10px 30px rgba(0,0,0,0.2);
                 z-index: 99999;
                 border: 2px solid #FFD700;
-                animation: slide-up 0.5s ease-out, glow-border 2s infinite;
-                cursor: pointer;
-                transition: transform 0.2s;
-            }
-            .reward-popup:hover {
-                transform: translateX(-50%) scale(1.05);
+                animation: slide-up 0.5s ease-out, glow-border 2s infinite, fade-out 0.5s ease-in 10s forwards;
+                cursor: default;
             }
             @keyframes slide-up {
                 from { bottom: -100px; }
@@ -464,6 +460,10 @@ def setup_app(is_public_page=False):
                 0% { box-shadow: 0 0 5px #FFD700; }
                 50% { box-shadow: 0 0 20px #FFD700; }
                 100% { box-shadow: 0 0 5px #FFD700; }
+            }
+            @keyframes fade-out {
+                from { opacity: 1; visibility: visible; }
+                to { opacity: 0; visibility: hidden; }
             }
             </style>
             """, unsafe_allow_html=True)

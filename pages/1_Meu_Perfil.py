@@ -90,3 +90,32 @@ with st.form("profile_form"):
             import time
             time.sleep(5)
             st.switch_page("pages/2_Desafios_Gamificados.py")
+
+st.markdown("---")
+st.markdown("### 📜 Histórico de Habilidades Desenvolvidas")
+
+if "completed_bncc_skills" in st.session_state and st.session_state.completed_bncc_skills:
+    skills_data = []
+    # Create a mapping of mission ID to Title if possible, otherwise just use ID
+    missions_map = {m['id']: m['title'] for m in st.session_state.missions} if 'missions' in st.session_state else {}
+    
+    for mission_id, skill_info in st.session_state.completed_bncc_skills.items():
+        # Try to find mission title
+        mission_title = missions_map.get(mission_id, f"Missão {mission_id}")
+        # If mission_id is a string like 'mission_1', try to match
+        if isinstance(mission_id, str) and mission_id.startswith('mission_'):
+             try:
+                 m_id_int = int(mission_id.split('_')[1])
+                 mission_title = missions_map.get(m_id_int, mission_title)
+             except:
+                 pass
+
+        skills_data.append({
+            "Habilidade BNCC": skill_info.get("habilidade", "N/A"),
+            "Descrição": skill_info.get("habilidade_texto", "N/A"),
+            "Missão": mission_title
+        })
+    
+    st.dataframe(skills_data, use_container_width=True, hide_index=True)
+else:
+    st.info("Nenhuma habilidade registrada ainda. Complete missões para desenvolver habilidades!")
