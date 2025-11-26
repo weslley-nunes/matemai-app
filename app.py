@@ -160,6 +160,47 @@ if "greeting" not in st.session_state:
 
 st.info(f"🤖 **MatemAI diz:**\n\n{st.session_state.greeting}")
 
+# Quick Action Buttons
+st.markdown("""
+<style>
+/* Estilo para os botões de ação rápida */
+div.stButton > button {
+    height: 70px;
+    font-size: 22px !important;
+    font-weight: bold !important;
+    border-radius: 15px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    text-transform: uppercase;
+}
+div.stButton > button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+/* Destaque especial para o botão primário (Desafio) */
+div.stButton > button[kind="primary"] {
+    background: linear-gradient(45deg, #0047AB, #00BFFF) !important;
+    border: none !important;
+    animation: pulse-action 2s infinite;
+}
+@keyframes pulse-action {
+    0% { box-shadow: 0 0 0 0 rgba(0, 191, 255, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 191, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 191, 255, 0); }
+}
+</style>
+""", unsafe_allow_html=True)
+
+col_action1, col_action2 = st.columns(2)
+
+with col_action1:
+    if st.button("👤 Atualizar Perfil", use_container_width=True):
+        st.switch_page("pages/1_Meu_Perfil.py")
+
+with col_action2:
+    if st.button("🚀 REALIZAR MEU DESAFIO", type="primary", use_container_width=True):
+        st.switch_page("pages/2_Desafios_Gamificados.py")
+
 st.divider()
 
 # 3. About MatemAI
