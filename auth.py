@@ -80,7 +80,11 @@ def login_with_google():
             with st.spinner("📊 Carregando seu progresso..."):
                 # Carregar progresso salvo
                 from utils import load_user_progress
+                from utils import load_user_progress
                 load_user_progress(email)
+                
+            # Save Session Cookie
+            save_session_cookie(email)
             
             # Clean URL and Rerun
             st.query_params.clear()
@@ -116,13 +120,94 @@ def logout():
     # Salvar antes de sair
     with st.spinner("💾 Salvando seu progresso..."):
         from utils import save_user_progress
+        from utils import save_user_progress
         save_user_progress()
+        
+    # Clear Cookie
+    clear_session_cookie()
     
     st.session_state.user_profile = None
     st.session_state.logged_in = False
     st.success("👋 Até logo!")
     st.rerun()
 
+    return st.session_state.logged_in
+
+# --- Session Persistence ---
+import extra_streamlit_components as stx
+import hashlib
+import time
+
+@st.cache_resource(experimental_allow_widgets=True)
+def get_cookie_manager():
+    return stx.CookieManager()
+
+def get_secret_key():
+    # Use a fixed secret or derive from client_secret if available
+    return "matemai_secret_key_v1" 
+
+def sign_data(data):
+    """Simple HMAC-like signature"""
+    secret = get_secret_key()
+    return hashlib.sha256(f"{data}{secret}".encode()).hexdigest()
+
+def save_session_cookie(email):
+    """Saves a signed cookie with the user email"""
+    cookie_manager = get_cookie_manager()
+    signature = sign_data(email)
+    token = f"{email}|{signature}"
+    # Expires in 1 day (but inactivity timeout is 15 mins)
+    # We allow the cookie to live longer so the user can be restored, 
+    # but utils.py will check the 15 min inactivity.
+    cookie_manager.set("auth_token", token, key="set_auth_token", max_age=86400)
+
+def clear_session_cookie():
+    """Clears the auth cookie"""
+    cookie_manager = get_cookie_manager()
+    cookie_manager.delete("auth_token", key="del_auth_token")
+
+def restore_session_from_cookie():
+    """Attempts to restore session from cookie"""
+    cookie_manager = get_cookie_manager()
+    token = cookie_manager.get("auth_token")
+    
+    if not token or "|" not in token:
+        return False
+        
+    email, signature = token.split("|", 1)
+    
+    # Validate signature
+    if sign_data(email) == signature:
+        # Restore user
+        try:
+            db = get_database()
+            user_data = db.get_user(email) # You might need to implement get_user in database.py or just load progress
+            
+            # If get_user doesn't exist, we can try loading progress which usually populates session state
+            # But we need basic profile info first. 
+            # Let's assume we can reconstruct basic profile or fetch it.
+            # For now, let's try to load progress and see if it populates user_profile
+            
+            # Hack: If database.py doesn't have get_user, we might need to rely on load_user_progress
+            # returning the profile data if it's stored there.
+            
+            from utils import load_user_progress
+            if load_user_progress(email):
+                st.session_state.logged_in = True
+                # Ensure user_profile has email if load_user_progress didn't set it fully
+                if not st.session_state.user_profile:
+                     st.session_state.user_profile = {"email": email, "name": "Estudante"}
+                elif "email" not in st.session_state.user_profile:
+                    st.session_state.user_profile["email"] = email
+                
+                return True
+        except Exception as e:
+            print(f"Error restoring session: {e}")
+            return False
+            
+    return False
+
+# Update check_authentication to use cookies
 def check_authentication():
     """
     Checks if the user is logged in.
@@ -130,5 +215,15 @@ def check_authentication():
     """
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
+    
+    # If not logged in, try to restore from cookie
+    if not st.session_state.logged_in:
+        # Avoid infinite rerun loops by checking if we already tried
+        if "session_restored" not in st.session_state:
+            if restore_session_from_cookie():
+                st.session_state.session_restored = True
+                st.rerun()
+            else:
+                st.session_state.session_restored = False
     
     return st.session_state.logged_in

@@ -414,6 +414,24 @@ def setup_app(is_public_page=False):
     # Inicializar Sessão
     init_session_state()
 
+    # Inactivity Timeout (15 minutes)
+    if st.session_state.get("logged_in"):
+        import time
+        current_time = time.time()
+        if "last_activity" in st.session_state:
+            if current_time - st.session_state.last_activity > 900: # 15 minutes = 900 seconds
+                from auth import logout
+                st.warning("⚠️ Sua sessão expirou por inatividade.")
+                # Clear state manually to avoid full rerun loop issues if logout triggers one
+                st.session_state.logged_in = False
+                st.session_state.user_profile = None
+                # Clear cookie if possible (requires rerun usually, but we can try)
+                # logout() calls rerun, so we should be good.
+                logout()
+                return # Stop execution
+        
+        st.session_state.last_activity = current_time
+
     # Enforce Authentication
     if not is_public_page and not st.session_state.get("logged_in"):
         st.warning("🔒 Por favor, faça login para continuar.")
