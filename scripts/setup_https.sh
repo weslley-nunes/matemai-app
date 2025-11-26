@@ -56,4 +56,5 @@ sudo systemctl restart nginx
 # 5. Run Certbot
 echo "Starting Certbot to obtain SSL certificate..."
 echo "Please follow the instructions on the screen (enter email, agree to terms)."
-sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN
+# Use webroot authenticator (uses our manual location block) and nginx installer (configures SSL)
+sudo certbot -a webroot -i nginx -w /var/www/html -d $DOMAIN -d www.$DOMAIN
