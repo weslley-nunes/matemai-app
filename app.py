@@ -61,61 +61,7 @@ if not check_authentication():
     
     # Stop execution if not logged in
     st.stop()
-            st.error("Erro ao configurar login. Verifique as credenciais.")
-            
-        # Apply custom classes to buttons via JavaScript hack or just rely on Streamlit's limited styling for now + CSS injection
-        st.markdown("""
-        <style>
-        /* Base Style for All Link Buttons */
-        div[data-testid="stLinkButton"] > a {
-            width: 100%;
-            border-radius: 15px;
-            height: 60px;
-            font-weight: 800;
-            text-transform: uppercase;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            transition: all 0.1s ease;
-            box-shadow: 0px 4px 0px rgba(0,0,0,0.2); /* 3D Effect Base */
-            border: none;
-            margin-bottom: 4px; /* Space for shadow */
-        }
-        
-        /* Hover Effect (Pressed) */
-        div[data-testid="stLinkButton"] > a:active, 
-        div[data-testid="stLinkButton"] > a:hover:active {
-            transform: translateY(4px);
-            box-shadow: 0px 0px 0px rgba(0,0,0,0.2); /* Shadow disappears */
-            margin-bottom: 0px;
-            margin-top: 4px;
-        }
 
-        /* 1. COMECE AGORA (Gray) - Column 2 */
-        div[data-testid="stColumn"]:nth-of-type(2) div[data-testid="stLinkButton"] > a {
-            background-color: #e5e5e5;
-            color: #afafaf !important; /* Text color for gray button */
-            color: #4b4b4b !important;
-        }
-        div[data-testid="stColumn"]:nth-of-type(2) div[data-testid="stLinkButton"] > a:hover {
-            background-color: #d4d4d4;
-            color: #4b4b4b !important;
-        }
-
-        /* 2. JÁ TENHO UMA CONTA (Blue) - Column 3 */
-        div[data-testid="stColumn"]:nth-of-type(3) div[data-testid="stLinkButton"] > a {
-            background-color: #0047AB;
-            color: white !important;
-        }
-        div[data-testid="stColumn"]:nth-of-type(3) div[data-testid="stLinkButton"] > a:hover {
-            background-color: #0056b3;
-            color: white !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-    st.stop() # Stop execution if not logged in
 
 # Sidebar
 # Sidebar
