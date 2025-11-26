@@ -418,6 +418,83 @@ def setup_app(is_public_page=False):
     if not is_public_page and not st.session_state.get("logged_in"):
         st.warning("🔒 Por favor, faça login para continuar.")
         st.switch_page("app.py")
+        
+    # Check for Claimable Rewards (Global Notification)
+    if st.session_state.get("logged_in") and not is_public_page:
+        if check_claimable_rewards():
+            st.markdown("""
+            <div class="reward-popup">
+                <a href="pages/4_Agenda_de_Estudos.py" target="_self" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+                    <div style="font-size: 30px; animation: bounce 2s infinite;">🎁</div>
+                    <div>
+                        <div style="font-weight: bold; color: #0047AB;">Recompensa Disponível!</div>
+                        <div style="font-size: 12px; color: #666;">Clique para resgatar</div>
+                    </div>
+                </a>
+            </div>
+            <style>
+            .reward-popup {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: white;
+                padding: 15px 25px;
+                border-radius: 50px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                z-index: 99999;
+                border: 2px solid #FFD700;
+                animation: slide-up 0.5s ease-out, glow-border 2s infinite;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+            .reward-popup:hover {
+                transform: translateX(-50%) scale(1.05);
+            }
+            @keyframes slide-up {
+                from { bottom: -100px; }
+                to { bottom: 20px; }
+            }
+            @keyframes bounce {
+                0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+                40% {transform: translateY(-10px);}
+                60% {transform: translateY(-5px);}
+            }
+            @keyframes glow-border {
+                0% { box-shadow: 0 0 5px #FFD700; }
+                50% { box-shadow: 0 0 20px #FFD700; }
+                100% { box-shadow: 0 0 5px #FFD700; }
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
+def check_claimable_rewards():
+    """
+    Verifica se existe alguma recompensa não reclamada.
+    """
+    if not st.session_state.get("logged_in"):
+        return False
+        
+    from datetime import datetime
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    
+    # Initialize if needed
+    if "daily_missions" not in st.session_state:
+        st.session_state.daily_missions = {}
+    if today_str not in st.session_state.daily_missions:
+        st.session_state.daily_missions[today_str] = {}
+        
+    # Check all missions
+    mission_ids = ["mission_1", "mission_2", "mission_3", "mission_4"]
+    
+    for mid in mission_ids:
+        # If eligible AND not yet marked as completed (claimed)
+        if check_mission_eligibility(mid):
+            is_claimed = st.session_state.daily_missions[today_str].get(mid, False)
+            if not is_claimed:
+                return True
+                
+    return False
 
 def reset_current_user_progress():
     if st.session_state.user_profile:
