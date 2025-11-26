@@ -25,7 +25,7 @@ except FileNotFoundError:
     pass 
 
 # Initialize Session State
-setup_app()
+setup_app(is_public_page=True)
 
 # Authentication Check
 if not check_authentication():

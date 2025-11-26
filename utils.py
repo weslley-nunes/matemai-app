@@ -396,7 +396,7 @@ def get_battery_status():
         return 999, 999 # Infinite symbol representation logic can be handled in UI
     return st.session_state.neural_battery, 10
 
-def setup_app():
+def setup_app(is_public_page=False):
     """
     Configuração global da aplicação.
     Deve ser chamada no início de todas as páginas.
@@ -413,6 +413,11 @@ def setup_app():
     
     # Inicializar Sessão
     init_session_state()
+
+    # Enforce Authentication
+    if not is_public_page and not st.session_state.get("logged_in"):
+        st.warning("🔒 Por favor, faça login para continuar.")
+        st.switch_page("app.py")
 
 def reset_current_user_progress():
     if st.session_state.user_profile:
