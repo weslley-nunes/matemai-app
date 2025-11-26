@@ -1,4 +1,6 @@
 import streamlit as st
+from dotenv import load_dotenv
+load_dotenv()
 from utils import setup_app, get_ai_agent, show_sidebar
 from auth import login_with_google, check_authentication, logout
 from database import get_database
