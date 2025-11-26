@@ -424,7 +424,7 @@ def setup_app(is_public_page=False):
         if check_claimable_rewards():
             st.markdown("""
             <div class="reward-popup">
-                <a href="pages/4_Agenda_de_Estudos.py" target="_self" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+                <a href="Agenda_de_Estudos" target="_self" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
                     <div style="font-size: 30px; animation: bounce 2s infinite;">🎁</div>
                     <div>
                         <div style="font-weight: bold; color: #0047AB;">Recompensa Disponível!</div>
