@@ -506,10 +506,10 @@ def show_sidebar():
             </style>
             """, unsafe_allow_html=True)
             
-            # Auto-rerun to update timer
-            import time
-            time.sleep(1)
-            st.rerun()
+            # Auto-rerun removed to prevent blocking the app
+            # import time
+            # time.sleep(1)
+            # st.rerun()
         
         if st.session_state.user_profile:
             st.write(f"👋 Olá, **{st.session_state.user_profile['name']}**!")
