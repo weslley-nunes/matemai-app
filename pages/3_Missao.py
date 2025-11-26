@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import setup_app, get_ai_agent, show_sidebar, complete_mission, save_user_progress, update_problem_solved, update_mission_completed
+from utils import setup_app, get_ai_agent, show_sidebar, complete_mission, save_user_progress, update_problem_solved, update_mission_completed, get_missions
 import time
 
 # Initialize Session State
@@ -7,9 +7,29 @@ setup_app()
 show_sidebar()
 
 if "current_mission" not in st.session_state or not st.session_state.current_mission:
-    st.warning("Nenhuma missão selecionada. Volte para os Desafios!")
-    st.page_link("pages/2_Desafios_Gamificados.py", label="Voltar para Desafios", icon="🔙")
-    st.stop()
+    # Auto-select next unlocked mission
+    # Ensure missions are loaded
+    if st.session_state.user_profile:
+        methodology = st.session_state.user_profile.get("methodology", "Standard")
+        level = st.session_state.level
+        missions = get_missions(methodology, level)
+        
+        # Find first unlocked mission
+        next_mission = next((m for m in missions if m["status"] == "unlocked"), None)
+        
+        if next_mission:
+            st.session_state.current_mission = next_mission
+            # Clear previous problem if any
+            if "current_problem" in st.session_state:
+                del st.session_state.current_problem
+            st.rerun()
+        else:
+            st.warning("Nenhuma missão disponível. Volte para os Desafios!")
+            st.page_link("pages/2_Desafios_Gamificados.py", label="Voltar para Desafios", icon="🔙")
+            st.stop()
+    else:
+        st.warning("Por favor, faça login.")
+        st.stop()
 
 mission = st.session_state.current_mission
 agent = get_ai_agent()
