@@ -17,6 +17,12 @@ server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
 
+    # Priority rule for ACME challenge to prevent proxying to Streamlit
+    location ^~ /.well-known/acme-challenge/ {
+        default_type "text/plain";
+        root /var/www/html;
+    }
+
     location / {
         proxy_pass http://127.0.0.1:8501;
         proxy_http_version 1.1;
@@ -28,6 +34,9 @@ server {
     }
 }
 EOF
+
+# Ensure webroot exists
+sudo mkdir -p /var/www/html
 
 # 3. Enable Site
 echo "Enabling site..."
