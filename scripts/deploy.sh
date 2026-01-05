@@ -9,9 +9,10 @@ echo "Iniciando deploy..."
 # Navegar para o diretório
 cd $PROJECT_DIR || exit
 
-# Baixar alterações do GitHub
+# Baixar alterações do GitHub (Forçando a atualização para evitar conflitos)
 echo "Baixando alterações..."
-git pull origin main
+git fetch --all
+git reset --hard origin/main
 
 # Ativar ambiente virtual (se existir)
 # Ativar ambiente virtual
