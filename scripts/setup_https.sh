@@ -15,7 +15,11 @@ sudo apt-get install -y nginx certbot python3-certbot-nginx
 echo "Stopping Nginx..."
 sudo systemctl stop nginx
 
-# 3. Obtain Certificate (Standalone Mode)
+# 3. Clear iptables redirects that might hijack port 80 (CRITICAL FIX)
+echo "Clearing iptables NAT rules..."
+sudo iptables -t nat -F
+
+# 4. Obtain Certificate (Standalone Mode)
 echo "Obtaining SSL Certificate..."
 sudo certbot certonly --standalone -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email $EMAIL
 
