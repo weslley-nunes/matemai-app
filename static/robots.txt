@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://matemai.com.br/sitemap.xml

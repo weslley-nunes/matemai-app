@@ -33,9 +33,16 @@ if [ ! -f "/etc/letsencrypt/live/matemai.com.br/fullchain.pem" ]; then
     echo "Certificado SSL não encontrado. Rodando script de configuração..."
     chmod +x scripts/setup_https.sh
     ./scripts/setup_https.sh
-else
     echo "Certificado SSL já existe. Pulando configuração."
 fi
+
+# Copiar arquivos estáticos para o webroot (SEO)
+echo "Copiando arquivos estáticos (sitemap, robots)..."
+sudo cp -r static/* /var/www/html/
+
+# Atualizar configuração do Nginx (Garante que as rotas estáticas existam)
+chmod +x scripts/update_nginx.sh
+./scripts/update_nginx.sh
 
 # Reiniciar o serviço do Streamlit
 echo "Reiniciando serviço..."

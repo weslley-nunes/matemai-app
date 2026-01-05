@@ -8,11 +8,26 @@ import os
 
 # Page Config
 st.set_page_config(
-    page_title="Matemai",
+    page_title="MatemAI - Aprenda Matemática com IA e Gamificação",
     page_icon="🧮",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# SEO Hidden Content (For Crawlers)
+st.markdown("""
+<div style="display: none;">
+    <h1>MatemAI: Plataforma de Ensino de Matemática com Inteligência Artificial</h1>
+    <p>O MatemAI é a melhor forma de aprender matemática online. Com gamificação, inteligência artificial e missões personalizadas, você domina a matemática do ensino fundamental e médio.</p>
+    <h2>Recursos Principais:</h2>
+    <ul>
+        <li>Matemática com IA Personalizada</li>
+        <li>Gamificação e Ranking de Alunos</li>
+        <li>Agenda de Estudos Inteligente</li>
+        <li>Desafios de Matemática Diários</li>
+    </ul>
+</div>
+""", unsafe_allow_html=True)
 
 # Load Custom CSS
 def local_css(file_name):
