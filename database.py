@@ -196,7 +196,8 @@ class FirestoreDB:
                     'school': profile.get('school_name', 'Escola Não Informada'),
                     'xp': data.get('xp', 0),
                     'level': data.get('level', 1),
-                    'avatar': profile.get('avatar', 'assets/mascot.png') # Fallback avatar
+                    'avatar': profile.get('avatar', 'assets/mascot.png'), # Fallback avatar
+                    'id': doc.id # Email/ID for identification
                 })
             
             return leaderboard

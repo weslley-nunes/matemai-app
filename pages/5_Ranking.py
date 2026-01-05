@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 from database import get_database
-from utils import setup_app, show_sidebar
+from utils import setup_app, show_sidebar, generate_nickname
 
 # Setup
 setup_app()
@@ -16,6 +16,23 @@ st.markdown("Confira o desempenho dos alunos e veja quem está liderando a jorna
 # Get Data
 db = get_database()
 leaderboard = db.get_leaderboard(limit=20)
+
+# Get Current User ID
+current_user_email = st.session_state.user_profile['email'] if st.session_state.user_profile else None
+
+# Process Leaderboard for Display (Privacy Masking)
+display_leaderboard = []
+for user in leaderboard:
+    user_display = user.copy()
+    # If it's NOT the current user, mask the name
+    if current_user_email and user.get('id') != current_user_email:
+        user_display['name'] = generate_nickname(user.get('id', 'unknown'))
+        # Optional: Mask avatar too if needed, but user didn't ask for it. 
+        # But maybe we should? "dados dos demais usuários sejam exibidos com nickname"
+        # Usually avatar goes with name. Let's keep avatar for now as requested "nickname criados pelo sistema".
+    display_leaderboard.append(user_display)
+
+leaderboard = display_leaderboard
 
 if not leaderboard:
     st.info("🌟 O ranking está sendo formado! Seja o primeiro a pontuar completando missões.")

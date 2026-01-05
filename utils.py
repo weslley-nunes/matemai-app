@@ -20,6 +20,37 @@ def get_img_as_base64(file_path):
         data = f.read()
     return f"data:image/png;base64,{base64.b64encode(data).decode()}"
 
+def generate_nickname(user_id):
+    """
+    Gera um nickname determinístico baseado no ID do usuário com tema juvenil.
+    """
+    import hashlib
+    
+    # Listas de temas juvenis
+    adjetivos = [
+        "Estelar", "Cósmico", "Veloz", "Supremo", "Galáctico", "Místico", 
+        "Lendário", "Infinito", "Radiante", "Sombrio", "Dourado", "Prateado",
+        "Mágico", "Fantástico", "Heroico", "Épico", "Solar", "Lunar",
+        "Cibernético", "Dimensional"
+    ]
+    
+    substantivos = [
+        "Viajante", "Mago", "Ninja", "Jedi", "Explorador", "Guardião", 
+        "Mestre", "Titã", "Guerreiro", "Aventureiro", "Campeão", "Herói",
+        "Sábio", "Alquimista", "Astronauta", "Piloto", "Capitão", "Líder",
+        "Defensor", "Conquistador"
+    ]
+    
+    # Hash do ID para garantir determinismo
+    hash_obj = hashlib.md5(user_id.encode())
+    hash_int = int(hash_obj.hexdigest(), 16)
+    
+    # Seleção baseada no hash
+    adj_idx = hash_int % len(adjetivos)
+    sub_idx = (hash_int // len(adjetivos)) % len(substantivos)
+    
+    return f"{substantivos[sub_idx]} {adjetivos[adj_idx]}"
+
 def get_ai_methodology(answers):
     """
     Determines the teaching methodology based on user answers using Gemini AI.
