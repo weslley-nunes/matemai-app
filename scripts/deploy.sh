@@ -28,6 +28,15 @@ fi
 echo "Instalando dependências..."
 pip install -r requirements.txt
 
+# Configurar HTTPS se ainda não estiver configurado
+if [ ! -f "/etc/letsencrypt/live/matemai.com.br/fullchain.pem" ]; then
+    echo "Certificado SSL não encontrado. Rodando script de configuração..."
+    chmod +x scripts/setup_https.sh
+    ./scripts/setup_https.sh
+else
+    echo "Certificado SSL já existe. Pulando configuração."
+fi
+
 # Reiniciar o serviço do Streamlit
 echo "Reiniciando serviço..."
 sudo systemctl restart $SERVICE_NAME
