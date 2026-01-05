@@ -2,26 +2,38 @@
 
 # Define Domain
 DOMAIN="matemai.com.br"
+EMAIL="contato@matemai.com.br"
 
 echo "Configuring HTTPS for $DOMAIN..."
 
-# 1. Install Nginx and Certbot
-echo "Installing Nginx and Certbot..."
+# 1. Install Nginx and Certbot (if not already installed)
+echo "Ensuring Nginx and Certbot are installed..."
 sudo apt-get update
 sudo apt-get install -y nginx certbot python3-certbot-nginx
 
-# 2. Create Nginx Configuration
+# 2. Stop Nginx to free up port 80 for Certbot Standalone
+echo "Stopping Nginx..."
+sudo systemctl stop nginx
+
+# 3. Obtain Certificate (Standalone Mode)
+echo "Obtaining SSL Certificate..."
+sudo certbot certonly --standalone -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email $EMAIL
+
+# 4. Create Nginx Configuration with SSL
 echo "Creating Nginx configuration..."
 sudo tee /etc/nginx/sites-available/matemai > /dev/null <<EOF
 server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
+    return 301 https://\$host\$request_uri;
+}
 
-    # Priority rule for ACME challenge to prevent proxying to Streamlit
-    location ^~ /.well-known/acme-challenge/ {
-        default_type "text/plain";
-        root /var/www/html;
-    }
+server {
+    listen 443 ssl;
+    server_name $DOMAIN www.$DOMAIN;
+
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
 
     location / {
         proxy_pass http://127.0.0.1:8501;
@@ -35,10 +47,7 @@ server {
 }
 EOF
 
-# Ensure webroot exists
-sudo mkdir -p /var/www/html
-
-# 3. Enable Site
+# 5. Enable Site
 echo "Enabling site..."
 if [ -f /etc/nginx/sites-enabled/default ]; then
     sudo rm /etc/nginx/sites-enabled/default
@@ -48,13 +57,8 @@ if [ ! -f /etc/nginx/sites-enabled/matemai ]; then
     sudo ln -s /etc/nginx/sites-available/matemai /etc/nginx/sites-enabled/
 fi
 
-# 4. Test and Restart Nginx
-echo "Restarting Nginx..."
-sudo nginx -t
-sudo systemctl restart nginx
+# 6. Restart Nginx
+echo "Starting Nginx..."
+sudo systemctl start nginx
 
-# 5. Run Certbot
-echo "Starting Certbot to obtain SSL certificate..."
-# Use webroot authenticator (uses our manual location block) and nginx installer (configures SSL)
-# Non-interactive mode with default email
-sudo certbot -a webroot -i nginx -w /var/www/html -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email contato@matemai.com.br --redirect
+echo "HTTPS Configuration Complete!"
