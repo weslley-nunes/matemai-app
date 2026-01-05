@@ -21,5 +21,8 @@ jobs:
         key: ${{ secrets.GCP_SSH_KEY }}
         port: 22
         script: |
-          chmod +x /home/${{ secrets.GCP_USERNAME }}/matemai-app/scripts/deploy.sh
-          /home/${{ secrets.GCP_USERNAME }}/matemai-app/scripts/deploy.sh
+          cd /home/${{ secrets.GCP_USERNAME }}/matemai-app
+          git fetch --all
+          git reset --hard origin/main
+          chmod +x scripts/deploy.sh
+          scripts/deploy.sh
