@@ -39,20 +39,24 @@ class FirestoreDB:
             st.error(f"Erro ao conectar ao Firestore: {e}")
             self.db = None
     
-    def save_user(self, email, name, avatar):
+    def save_user(self, email, name, avatar, nickname=None):
         """Salva informações básicas do usuário"""
         if not self.db:
             return False
             
         try:
             user_ref = self.db.collection('users').document(email)
-            user_ref.set({
+            user_data = {
                 'email': email,
                 'name': name,
                 'avatar': avatar,
                 'created_at': datetime.now(),
                 'last_login': datetime.now()
-            }, merge=True)
+            }
+            if nickname:
+                user_data['nickname'] = nickname
+                
+            user_ref.set(user_data, merge=True)
             return True
         except Exception as e:
             st.error(f"Erro ao salvar usuário: {e}")
@@ -193,6 +197,7 @@ class FirestoreDB:
                 
                 leaderboard.append({
                     'name': profile.get('name', 'Usuário Anônimo'),
+                    'nickname': profile.get('nickname', None), # Get nickname
                     'school': profile.get('school_name', 'Escola Não Informada'),
                     'xp': data.get('xp', 0),
                     'level': data.get('level', 1),

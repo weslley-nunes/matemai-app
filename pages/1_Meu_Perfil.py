@@ -22,6 +22,7 @@ with st.form("profile_form"):
     current_profile = st.session_state.user_profile or {}
     
     default_name = current_profile.get("name", "")
+    default_nickname = current_profile.get("nickname", "")
     default_age = current_profile.get("age", 10)
     default_confidence = current_profile.get("confidence", 5)
     default_interests = current_profile.get("interests", [])
@@ -30,6 +31,7 @@ with st.form("profile_form"):
     
     # Form Fields
     name = st.text_input("Qual é o seu nome?", value=default_name)
+    nickname = st.text_input("Como você quer ser chamado no Ranking? (Apelido)", value=default_nickname, help="Esse nome aparecerá para os outros alunos. Se deixar em branco, criaremos um nome secreto para você!")
     age = st.number_input("Quantos anos você tem?", min_value=5, max_value=100, value=default_age)
     
     school_year = st.selectbox(
@@ -57,6 +59,7 @@ with st.form("profile_form"):
             # AI Agent Logic
             answers = {
                 "name": name,
+                "nickname": nickname,
                 "age": age,
                 "school_year": school_year,
                 "school_name": school_name,
@@ -72,6 +75,7 @@ with st.form("profile_form"):
             # Update Session State
             st.session_state.user_profile.update({
                 "name": name,
+                "nickname": nickname,
                 "age": age,
                 "school_year": school_year,
                 "school_name": school_name,

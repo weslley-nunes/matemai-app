@@ -26,10 +26,20 @@ for user in leaderboard:
     user_display = user.copy()
     # If it's NOT the current user, mask the name
     if current_user_email and user.get('id') != current_user_email:
-        user_display['name'] = generate_nickname(user.get('id', 'unknown'))
-        # Optional: Mask avatar too if needed, but user didn't ask for it. 
-        # But maybe we should? "dados dos demais usuários sejam exibidos com nickname"
-        # Usually avatar goes with name. Let's keep avatar for now as requested "nickname criados pelo sistema".
+        # Use chosen nickname if available, else generate one
+        user_display['name'] = user.get('nickname') or generate_nickname(user.get('id', 'unknown'))
+    else:
+        # It IS the current user. Show their chosen nickname if they have one, otherwise their real name.
+        # Actually, user might want to see what others see? 
+        # Requirement: "só o proprio usuário na aba ranking veja o seu próprio nome"
+        # But also "crie um campo no cadastro em que ele possa escolher como ele deseja ser chamado"
+        # So if they chose a nickname, they probably want to see that.
+        # Let's show: Nickname (Real Name) or just Real Name if no nickname.
+        if user.get('nickname'):
+             user_display['name'] = f"{user['nickname']} ({user['name']})"
+        else:
+             user_display['name'] = user['name']
+
     display_leaderboard.append(user_display)
 
 leaderboard = display_leaderboard
