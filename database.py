@@ -46,17 +46,32 @@ class FirestoreDB:
             
         try:
             user_ref = self.db.collection('users').document(email)
-            user_data = {
-                'email': email,
-                'name': name,
-                'avatar': avatar,
-                'created_at': datetime.now(),
-                'last_login': datetime.now()
-            }
-            if nickname:
-                user_data['nickname'] = nickname
+            
+            # Check if user exists to preserve avatar
+            doc = user_ref.get()
+            
+            if doc.exists:
+                # Update only specific fields, preserving avatar
+                update_data = {
+                    'name': name,
+                    'last_login': datetime.now()
+                }
+                if nickname:
+                    update_data['nickname'] = nickname
+                user_ref.update(update_data)
+            else:
+                # New user: save everything including avatar
+                user_data = {
+                    'email': email,
+                    'name': name,
+                    'avatar': avatar,
+                    'created_at': datetime.now(),
+                    'last_login': datetime.now()
+                }
+                if nickname:
+                    user_data['nickname'] = nickname
+                user_ref.set(user_data)
                 
-            user_ref.set(user_data, merge=True)
             return True
         except Exception as e:
             st.error(f"Erro ao salvar usuário: {e}")
