@@ -582,6 +582,10 @@ def show_sidebar():
         st.page_link("pages/5_Ranking.py", label="Ranking", icon="🏆")
         st.page_link("pages/6_Premium.py", label="Premium", icon="💎")
         
+        # Admin Link
+        if st.session_state.user_profile and st.session_state.user_profile.get("email") == "weslley.uca@gmail.com":
+            st.page_link("pages/9_Admin_Panel.py", label="Admin Panel", icon="🛡️")
+        
         st.markdown("---")
         avatar_url = None
         if st.session_state.user_profile and st.session_state.user_profile.get("avatar"):
