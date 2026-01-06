@@ -18,7 +18,7 @@ SCOPES = [
 # Load Redirect URI from environment or default to localhost
 REDIRECT_URI = os.getenv("REDIRECT_URI", "http://localhost:8501")
 
-@st.cache_resource(experimental_allow_widgets=True)
+@st.cache_resource
 def get_manager():
     return stx.CookieManager()
 
