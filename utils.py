@@ -676,7 +676,11 @@ def show_sidebar():
                     ⚙️ Personalizar Avatar
                 </a>
             </div>
+            </div>
             """, unsafe_allow_html=True)
+        
+        # Show Double XP indicator if active
+        double_xp_active, remaining_seconds = is_double_xp_active()
         
         if double_xp_active:
             minutes = int(remaining_seconds // 60)
