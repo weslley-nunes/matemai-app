@@ -668,13 +668,15 @@ def show_sidebar():
             }}
             </style>
             
-            <div class="avatar-container" onclick="window.parent.document.querySelector('a[href*=\'Meu_Perfil\']').click()">
-                <img src="{final_avatar_url}" class="avatar-image">
-                <div class="avatar-overlay">
-                    <div class="edit-icon">✏️</div>
-                    <div class="edit-text">Editar</div>
+            <a href="/Meu_Perfil" target="_self" style="display: block; text-decoration: none; color: inherit;">
+                <div class="avatar-container">
+                    <img src="{final_avatar_url}" class="avatar-image">
+                    <div class="avatar-overlay">
+                        <div class="edit-icon">✏️</div>
+                        <div class="edit-text">Editar</div>
+                    </div>
                 </div>
-            </div>
+            </a>
             <div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
                 <a href="/Meu_Perfil" target="_self" style="text-decoration: none; color: #666; font-size: 0.9em; display: flex; align-items: center; justify-content: center; gap: 5px;">
                     ⚙️ Personalizar Avatar
