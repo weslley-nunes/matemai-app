@@ -4,33 +4,33 @@ AVATAR_ASSETS = {
     "top": [
         {"id": "shortFlat", "name": "Cabelo Curto", "level": 1},
         {"id": "longButNotTooLong", "name": "Cabelo Longo", "level": 1},
-        {"id": "hat", "name": "Chapéu", "level": 5},
+        {"id": "hat", "name": "Chapéu", "level": 5, "price": 500},
         {"id": "hijab", "name": "Hijab", "level": 1},
         {"id": "turban", "name": "Turbante", "level": 1},
-        {"id": "winterHat1", "name": "Touca de Inverno", "level": 5},
-        {"id": "winterHat02", "name": "Touca com Pompom", "level": 8},
+        {"id": "winterHat1", "name": "Touca de Inverno", "level": 5, "price": 400},
+        {"id": "winterHat02", "name": "Touca com Pompom", "level": 8, "price": 800},
         {"id": "bob", "name": "Corte Bob", "level": 1},
         {"id": "bun", "name": "Coque", "level": 1},
         {"id": "curly", "name": "Encaracolado", "level": 1},
         {"id": "curvy", "name": "Ondulado", "level": 1},
         {"id": "dreads", "name": "Dreads", "level": 1},
-        {"id": "frida", "name": "Frida", "level": 10},
+        {"id": "frida", "name": "Frida", "level": 10, "price": 1000},
         {"id": "fro", "name": "Black Power", "level": 1},
-        {"id": "froBand", "name": "Black Power com Faixa", "level": 3},
-        {"id": "miaWallace", "name": "Mia Wallace", "level": 5},
-        {"id": "shavedSides", "name": "Laterais Raspadas", "level": 4},
+        {"id": "froBand", "name": "Black Power com Faixa", "level": 3, "price": 300},
+        {"id": "miaWallace", "name": "Mia Wallace", "level": 5, "price": 500},
+        {"id": "shavedSides", "name": "Laterais Raspadas", "level": 4, "price": 400},
         {"id": "straight01", "name": "Liso 1", "level": 1},
         {"id": "straight02", "name": "Liso 2", "level": 1},
         {"id": "theCaesar", "name": "Corte Caesar", "level": 1},
     ],
     "accessories": [
-        {"id": "eyepatch", "name": "Tapa-Olho", "level": 3},
-        {"id": "kurt", "name": "Óculos Kurt", "level": 5},
+        {"id": "eyepatch", "name": "Tapa-Olho", "level": 3, "price": 300},
+        {"id": "kurt", "name": "Óculos Kurt", "level": 5, "price": 500},
         {"id": "prescription01", "name": "Óculos Grau 1", "level": 1},
         {"id": "prescription02", "name": "Óculos Grau 2", "level": 1},
         {"id": "round", "name": "Óculos Redondos", "level": 1},
-        {"id": "sunglasses", "name": "Óculos Escuros", "level": 10},
-        {"id": "wayfarers", "name": "Wayfarers", "level": 5},
+        {"id": "sunglasses", "name": "Óculos Escuros", "level": 10, "price": 1000},
+        {"id": "wayfarers", "name": "Wayfarers", "level": 5, "price": 500},
     ],
     "hairColor": [
         {"id": "a55728", "name": "Ruivo Escuro", "level": 1},
@@ -39,14 +39,14 @@ AVATAR_ASSETS = {
         {"id": "d6b370", "name": "Loiro Dourado", "level": 1},
         {"id": "724133", "name": "Castanho", "level": 1},
         {"id": "4a312c", "name": "Castanho Escuro", "level": 1},
-        {"id": "f59797", "name": "Rosa Pastel", "level": 5},
-        {"id": "ecdcbf", "name": "Platinado", "level": 3},
+        {"id": "f59797", "name": "Rosa Pastel", "level": 5, "price": 500},
+        {"id": "ecdcbf", "name": "Platinado", "level": 3, "price": 300},
         {"id": "c93305", "name": "Vermelho", "level": 1},
         {"id": "e8e1e1", "name": "Grisalho", "level": 1},
     ],
     "clothing": [
-        {"id": "blazerAndShirt", "name": "Blazer e Camisa", "level": 5},
-        {"id": "blazerAndSweater", "name": "Blazer e Suéter", "level": 3},
+        {"id": "blazerAndShirt", "name": "Blazer e Camisa", "level": 5, "price": 600},
+        {"id": "blazerAndSweater", "name": "Blazer e Suéter", "level": 3, "price": 400},
         {"id": "collarAndSweater", "name": "Gola e Suéter", "level": 1},
         {"id": "graphicShirt", "name": "Camiseta Estampada", "level": 1},
         {"id": "hoodie", "name": "Moletom", "level": 2},
@@ -62,12 +62,12 @@ AVATAR_ASSETS = {
         {"id": "dizzy", "name": "Tonto", "level": 1},
         {"id": "eyeRoll", "name": "Revirando", "level": 2},
         {"id": "happy", "name": "Feliz", "level": 1},
-        {"id": "hearts", "name": "Apaixonado", "level": 5},
+        {"id": "hearts", "name": "Apaixonado", "level": 5, "price": 500},
         {"id": "side", "name": "Olhando de Lado", "level": 1},
         {"id": "squint", "name": "Semicerrados", "level": 1},
         {"id": "surprised", "name": "Surpreso", "level": 1},
-        {"id": "wink", "name": "Piscadinha", "level": 3},
-        {"id": "winkWacky", "name": "Piscadinha Louca", "level": 4},
+        {"id": "wink", "name": "Piscadinha", "level": 3, "price": 300},
+        {"id": "winkWacky", "name": "Piscadinha Louca", "level": 4, "price": 400},
     ],
     "eyebrows": [
         {"id": "angry", "name": "Bravo", "level": 1},
@@ -93,7 +93,7 @@ AVATAR_ASSETS = {
         {"id": "serious", "name": "Sério", "level": 1},
         {"id": "smile", "name": "Sorriso", "level": 1},
         {"id": "tongue", "name": "Língua", "level": 2},
-        {"id": "twinkle", "name": "Sorriso Maroto", "level": 3},
+        {"id": "twinkle", "name": "Sorriso Maroto", "level": 3, "price": 300},
         {"id": "vomit", "name": "Enjoado", "level": 1},
     ],
     "skinColor": [
@@ -152,3 +152,19 @@ def generate_random_avatar_config():
             config[category] = selected_item["id"]
             
     return config
+
+def get_shop_items():
+    """
+    Retorna uma lista de todos os itens compráveis (que possuem preço).
+    """
+    shop_items = []
+    
+    for category, items in AVATAR_ASSETS.items():
+        for item in items:
+            if "price" in item:
+                # Cria uma cópia do item e adiciona a categoria
+                shop_item = item.copy()
+                shop_item["category"] = category
+                shop_items.append(shop_item)
+                
+    return shop_items

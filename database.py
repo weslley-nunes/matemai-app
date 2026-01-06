@@ -107,7 +107,9 @@ class FirestoreDB:
                 # Neural Battery
                 'neural_battery': kwargs.get('neural_battery', 10),
                 'last_battery_reset': kwargs.get('last_battery_reset', datetime.now().strftime("%Y-%m-%d")),
-                'updated_at': datetime.now()
+                'updated_at': datetime.now(),
+                # Inventory
+                'inventory': kwargs.get('inventory', [])
             })
             return True
         except Exception as e:
@@ -140,14 +142,14 @@ class FirestoreDB:
                     'daily_missions_xp': data.get('daily_missions_xp', {}),
                     'daily_mission_progress': data.get('daily_mission_progress', {}),
                     # BNCC Skills Data
-                    'daily_mission_progress': data.get('daily_mission_progress', {}),
-                    # BNCC Skills Data
                     'completed_bncc_skills': data.get('completed_bncc_skills', {}),
                     # Neural Battery
                     'neural_battery': data.get('neural_battery', 10),
                     'last_battery_reset': data.get('last_battery_reset', datetime.now().strftime("%Y-%m-%d")),
                     # Avatar Config
-                    'avatar_config': data.get('avatar_config', {})
+                    'avatar_config': data.get('avatar_config', {}),
+                    # Inventory
+                    'inventory': data.get('inventory', [])
                 }
             return None
         except Exception as e:

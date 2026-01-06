@@ -71,7 +71,12 @@ with col_wardrobe:
             # Grid layout for items
             cols = st.columns(3)
             for idx, item in enumerate(assets):
-                is_locked = item["level"] > user_level
+                # Check if item is unlocked by level OR owned in inventory
+                is_owned = False
+                if "inventory" in st.session_state and item["id"] in st.session_state.inventory:
+                    is_owned = True
+                    
+                is_locked = (item["level"] > user_level) and not is_owned
                 
                 with cols[idx % 3]:
                     # Visual indicator for selection
@@ -82,6 +87,8 @@ with col_wardrobe:
                         btn_label = f"🔒 Lvl {item['level']}"
                     elif is_selected:
                         btn_label = f"✅ {item['name']}"
+                    elif is_owned and item["level"] > user_level:
+                         btn_label = f"🔓 {item['name']}" # Show unlocked icon for purchased items
                         
                     # Button logic
                     if st.button(
