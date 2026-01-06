@@ -618,7 +618,7 @@ def show_sidebar():
         if final_avatar_url:
             st.markdown(f"""
             <style>
-            .avatar-container {{
+            .avatar-container-v2 {{
                 position: relative;
                 width: 120px;
                 height: 120px;
@@ -629,7 +629,7 @@ def show_sidebar():
                 box-shadow: 0 4px 10px rgba(0,0,0,0.2);
                 transition: transform 0.3s ease;
             }}
-            .avatar-container:hover {{
+            .avatar-container-v2:hover {{
                 transform: scale(1.05);
             }}
             .avatar-image {{
@@ -639,7 +639,7 @@ def show_sidebar():
             }}
             </style>
             
-            <div class="avatar-container">
+            <div class="avatar-container-v2">
                 <img src="{final_avatar_url}" class="avatar-image">
             </div>
             <div style="margin-bottom: 10px;"></div>
