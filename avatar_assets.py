@@ -119,3 +119,22 @@ def get_avatar_url(config):
             params.append(f"{key}={value}")
             
     return f"{base_url}?{'&'.join(params)}"
+
+def generate_random_avatar_config():
+    """
+    Gera uma configuração de avatar aleatória com itens de nível 1.
+    """
+    import random
+    
+    config = {}
+    
+    # Iterate over categories in AVATAR_ASSETS
+    for category, items in AVATAR_ASSETS.items():
+        # Filter items that are level 1 (unlocked by default)
+        level_1_items = [item for item in items if item["level"] == 1]
+        
+        if level_1_items:
+            selected_item = random.choice(level_1_items)
+            config[category] = selected_item["id"]
+            
+    return config

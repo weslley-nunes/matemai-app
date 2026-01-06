@@ -2,6 +2,7 @@ import streamlit as st
 from ai_agent import MathAI
 from auth import logout
 from database import get_database
+from avatar_assets import get_avatar_url, generate_random_avatar_config
 import os
 import base64
 
@@ -371,6 +372,18 @@ def load_user_progress(email):
         st.session_state.last_battery_reset = progress.get('last_battery_reset', "")
         # Streak Data
         st.session_state.last_study_date = progress.get('last_study_date', "")
+        st.session_state.last_study_date = progress.get('last_study_date', "")
+        
+        # Ensure avatar config exists
+        if not st.session_state.user_profile.get("avatar_config"):
+            st.session_state.user_profile["avatar_config"] = generate_random_avatar_config()
+            # Save it back to ensure persistence
+            db.save_avatar_config(
+                email, 
+                st.session_state.user_profile["avatar_config"], 
+                get_avatar_url(st.session_state.user_profile["avatar_config"])
+            )
+            
         return True
     return False
 
@@ -597,6 +610,15 @@ def show_sidebar():
             st.markdown(f"""
             <div class="profile-photo-frame">
                 <img src="{avatar_url}" width="100">
+            </div>
+            """, unsafe_allow_html=True)
+            
+        # Display Custom Avatar below photo
+        if st.session_state.user_profile and st.session_state.user_profile.get("avatar_config"):
+            custom_avatar_url = get_avatar_url(st.session_state.user_profile["avatar_config"])
+            st.markdown(f"""
+            <div style="text-align: center; margin-top: -10px; margin-bottom: 10px;">
+                <img src="{custom_avatar_url}" width="80" style="border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             </div>
             """, unsafe_allow_html=True)
         

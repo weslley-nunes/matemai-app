@@ -24,82 +24,82 @@ tab_profile, tab_avatar = st.tabs(["📝 Dados Pessoais", "🎨 Meu Avatar"])
 
 with tab_profile:
     with st.form("profile_form"):
-    # Get current values or defaults
-    current_profile = st.session_state.user_profile or {}
-    
-    default_name = current_profile.get("name", "")
-    default_nickname = current_profile.get("nickname", "")
-    default_age = current_profile.get("age", 10)
-    default_confidence = current_profile.get("confidence", 5)
-    default_interests = current_profile.get("interests", [])
-    default_school_year = current_profile.get("school_year", "6º ano")
-    default_school_name = current_profile.get("school_name", "")
-    
-    # Form Fields
-    name = st.text_input("Qual é o seu nome?", value=default_name)
-    nickname = st.text_input("Como você quer ser chamado no Ranking? (Apelido)", value=default_nickname, help="Esse nome aparecerá para os outros alunos. Se deixar em branco, criaremos um nome secreto para você!")
-    age = st.number_input("Quantos anos você tem?", min_value=5, max_value=100, value=default_age)
-    
-    school_year = st.selectbox(
-        "Em que ano você estuda?",
-        ["1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "1º ano EM", "2º ano EM", "3º ano EM"],
-        index=["1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "1º ano EM", "2º ano EM", "3º ano EM"].index(default_school_year) if default_school_year in ["1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "1º ano EM", "2º ano EM", "3º ano EM"] else 5
-    )
-    
-    school_name = st.text_input("Nome da sua escola:", value=default_school_name)
-    
-    confidence = st.slider("De 1 a 10, o quanto você gosta de matemática?", 1, 10, default_confidence)
-    
-    interests = st.multiselect(
-        "O que você mais gosta de fazer?",
-        ["Ler histórias", "Jogar videogames", "Resolver quebra-cabeças", "Desenhar", "Esportes", "Música", "Espaço", "Dinossauros", "Culinária"],
-        default=default_interests
-    )
-    
-    submitted = st.form_submit_button("Salvar Perfil")
+        # Get current values or defaults
+        current_profile = st.session_state.user_profile or {}
+        
+        default_name = current_profile.get("name", "")
+        default_nickname = current_profile.get("nickname", "")
+        default_age = current_profile.get("age", 10)
+        default_confidence = current_profile.get("confidence", 5)
+        default_interests = current_profile.get("interests", [])
+        default_school_year = current_profile.get("school_year", "6º ano")
+        default_school_name = current_profile.get("school_name", "")
+        
+        # Form Fields
+        name = st.text_input("Qual é o seu nome?", value=default_name)
+        nickname = st.text_input("Como você quer ser chamado no Ranking? (Apelido)", value=default_nickname, help="Esse nome aparecerá para os outros alunos. Se deixar em branco, criaremos um nome secreto para você!")
+        age = st.number_input("Quantos anos você tem?", min_value=5, max_value=100, value=default_age)
+        
+        school_year = st.selectbox(
+            "Em que ano você estuda?",
+            ["1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "1º ano EM", "2º ano EM", "3º ano EM"],
+            index=["1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "1º ano EM", "2º ano EM", "3º ano EM"].index(default_school_year) if default_school_year in ["1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "1º ano EM", "2º ano EM", "3º ano EM"] else 5
+        )
+        
+        school_name = st.text_input("Nome da sua escola:", value=default_school_name)
+        
+        confidence = st.slider("De 1 a 10, o quanto você gosta de matemática?", 1, 10, default_confidence)
+        
+        interests = st.multiselect(
+            "O que você mais gosta de fazer?",
+            ["Ler histórias", "Jogar videogames", "Resolver quebra-cabeças", "Desenhar", "Esportes", "Música", "Espaço", "Dinossauros", "Culinária"],
+            default=default_interests
+        )
+        
+        submitted = st.form_submit_button("Salvar Perfil")
 
-    if submitted:
-        if not name:
-            st.error("Por favor, digite seu nome.")
-        else:
-            # AI Agent Logic
-            answers = {
-                "name": name,
-                "nickname": nickname,
-                "age": age,
-                "school_year": school_year,
-                "school_name": school_name,
-                "confidence": confidence,
-                "interest": " ".join(interests)
-            }
-            
-            # Clear cache if interests changed significantly (optional, but good practice)
-            # st.cache_data.clear() 
-            
-            methodology = get_ai_methodology(answers)
-            
-            # Update Session State
-            st.session_state.user_profile.update({
-                "name": name,
-                "nickname": nickname,
-                "age": age,
-                "school_year": school_year,
-                "school_name": school_name,
-                "confidence": confidence,
-                "interests": interests,
-                "methodology": methodology
-            })
-            
-            st.success(f"Perfil atualizado! Nova metodologia: **{methodology}**")
-            st.balloons()
-            
-            # Mensagem de redirecionamento
-            st.info("🚀 Redirecionando para Desafios Gamificados em 5 segundos...")
-            
-            # Aguardar 5 segundos e redirecionar
-            import time
-            time.sleep(5)
-            st.switch_page("pages/2_Desafios_Gamificados.py")
+        if submitted:
+            if not name:
+                st.error("Por favor, digite seu nome.")
+            else:
+                # AI Agent Logic
+                answers = {
+                    "name": name,
+                    "nickname": nickname,
+                    "age": age,
+                    "school_year": school_year,
+                    "school_name": school_name,
+                    "confidence": confidence,
+                    "interest": " ".join(interests)
+                }
+                
+                # Clear cache if interests changed significantly (optional, but good practice)
+                # st.cache_data.clear() 
+                
+                methodology = get_ai_methodology(answers)
+                
+                # Update Session State
+                st.session_state.user_profile.update({
+                    "name": name,
+                    "nickname": nickname,
+                    "age": age,
+                    "school_year": school_year,
+                    "school_name": school_name,
+                    "confidence": confidence,
+                    "interests": interests,
+                    "methodology": methodology
+                })
+                
+                st.success(f"Perfil atualizado! Nova metodologia: **{methodology}**")
+                st.balloons()
+                
+                # Mensagem de redirecionamento
+                st.info("🚀 Redirecionando para Desafios Gamificados em 5 segundos...")
+                
+                # Aguardar 5 segundos e redirecionar
+                import time
+                time.sleep(5)
+                st.switch_page("pages/2_Desafios_Gamificados.py")
 
 with tab_avatar:
     st.header("Estúdio de Criação de Avatar")
