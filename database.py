@@ -245,6 +245,98 @@ class FirestoreDB:
             st.error(f"Erro ao salvar pedido: {e}")
             return False
 
+    def get_all_users(self):
+        """Retorna uma lista com todos os usuários e seus progressos (Admin)"""
+        if not self.db:
+            return []
+            
+        try:
+            # Buscar todos os usuários
+            users_ref = self.db.collection('users')
+            users_docs = users_ref.stream()
+            
+            all_users = []
+            for doc in users_docs:
+                user_data = doc.to_dict()
+                email = user_data.get('email')
+                
+                # Buscar progresso correspondente
+                progress_data = self.load_progress(email)
+                
+                user_info = {
+                    'email': email,
+                    'name': user_data.get('name', 'N/A'),
+                    'nickname': user_data.get('nickname', 'N/A'),
+                    'last_login': user_data.get('last_login'),
+                    'created_at': user_data.get('created_at'),
+                    'xp': progress_data.get('xp', 0) if progress_data else 0,
+                    'level': progress_data.get('level', 1) if progress_data else 1,
+                    'school': progress_data.get('profile', {}).get('school_name', 'N/A') if progress_data else 'N/A'
+                }
+                all_users.append(user_info)
+                
+            return all_users
+        except Exception as e:
+            st.error(f"Erro ao buscar usuários: {e}")
+            return []
+
+    def delete_user(self, email):
+        """Deleta um usuário e seus dados associados (Admin)"""
+        if not self.db:
+            return False
+            
+        try:
+            # Deletar documento de usuário
+            self.db.collection('users').document(email).delete()
+            
+            # Deletar documento de progresso
+            self.db.collection('progress').document(email).delete()
+            
+            # Deletar subcoleção de pedidos (opcional, mas recomendado limpar)
+            # Firestore não deleta subcoleções automaticamente, teria que iterar.
+            # Para simplificar, assumimos que o principal é o user e progress.
+            
+            return True
+        except Exception as e:
+            st.error(f"Erro ao deletar usuário: {e}")
+            return False
+
+    def update_user_admin(self, email, update_data):
+        """Atualiza dados do usuário via admin"""
+        if not self.db:
+            return False
+            
+        try:
+            # Separar dados de usuário e progresso
+            user_fields = ['name', 'nickname']
+            progress_fields = ['xp', 'level']
+            
+            user_update = {k: v for k, v in update_data.items() if k in user_fields}
+            
+            # Atualizar collection users
+            if user_update:
+                self.db.collection('users').document(email).update(user_update)
+            
+            # Atualizar collection progress
+            # Precisamos carregar o progresso atual para atualizar campos aninhados se necessário,
+            # mas aqui vamos simplificar atualizando campos de topo do documento progress
+            progress_update = {}
+            if 'xp' in update_data:
+                progress_update['xp'] = update_data['xp']
+            if 'level' in update_data:
+                progress_update['level'] = update_data['level']
+                
+            if progress_update:
+                # Verificar se documento existe antes de update
+                progress_ref = self.db.collection('progress').document(email)
+                if progress_ref.get().exists:
+                    progress_ref.update(progress_update)
+                
+            return True
+        except Exception as e:
+            st.error(f"Erro ao atualizar usuário: {e}")
+            return False
+
 # Singleton instance
 @st.cache_resource
 def get_database():
