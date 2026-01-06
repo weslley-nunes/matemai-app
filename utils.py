@@ -637,53 +637,16 @@ def show_sidebar():
                 height: 100%;
                 object-fit: cover;
             }}
-            .avatar-overlay {{
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.6);
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                opacity: 0;
-                transition: opacity 0.3s ease;
-                cursor: pointer;
-            }}
-            .avatar-container:hover .avatar-overlay {{
-                opacity: 1;
-            }}
-            .edit-icon {{
-                font-size: 24px;
-                color: white;
-                margin-bottom: 5px;
-            }}
-            .edit-text {{
-                color: white;
-                font-size: 12px;
-                font-weight: bold;
-                text-transform: uppercase;
-            }}
             </style>
             
-            <a href="/Meu_Perfil" target="_self" style="display: block; text-decoration: none; color: inherit;">
-                <div class="avatar-container">
-                    <img src="{final_avatar_url}" class="avatar-image">
-                    <div class="avatar-overlay">
-                        <div class="edit-icon">✏️</div>
-                        <div class="edit-text">Editar</div>
-                    </div>
-                </div>
-            </a>
-            <div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
-                <a href="/Meu_Perfil" target="_self" style="text-decoration: none; color: #666; font-size: 0.9em; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                    ⚙️ Personalizar Avatar
-                </a>
+            <div class="avatar-container">
+                <img src="{final_avatar_url}" class="avatar-image">
             </div>
-            </div>
+            <div style="margin-bottom: 10px;"></div>
             """, unsafe_allow_html=True)
+            
+            # Link nativo do Streamlit para navegação SPA
+            st.page_link("pages/1_Meu_Perfil.py", label="Personalizar Avatar", icon="⚙️")
         
         # Show Double XP indicator if active
         double_xp_active, remaining_seconds = is_double_xp_active()
