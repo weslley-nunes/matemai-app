@@ -7,3 +7,4 @@ python-dotenv
 firebase-admin
 mercadopago
 plotly
+extra-streamlit-components

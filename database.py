@@ -62,6 +62,20 @@ class FirestoreDB:
             st.error(f"Erro ao salvar usuário: {e}")
             return False
     
+    def get_user(self, email):
+        """Recupera informações básicas do usuário"""
+        if not self.db:
+            return None
+            
+        try:
+            doc = self.db.collection('users').document(email).get()
+            if doc.exists:
+                return doc.to_dict()
+            return None
+        except Exception as e:
+            st.error(f"Erro ao buscar usuário: {e}")
+            return None
+
     def save_progress(self, email, xp, level, profile_data, missions_data, **kwargs):
         """Salva o progresso completo do usuário"""
         if not self.db:

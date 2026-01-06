@@ -3,6 +3,9 @@ from database import get_database
 import google_auth_oauthlib.flow
 from googleapiclient.discovery import build
 import os
+import extra_streamlit_components as stx
+import time
+from datetime import datetime, timedelta
 
 # Configuration
 # Ensure you have client_secret.json in the root directory
@@ -14,6 +17,10 @@ SCOPES = [
 ]
 # Load Redirect URI from environment or default to localhost
 REDIRECT_URI = os.getenv("REDIRECT_URI", "http://localhost:8501")
+
+@st.cache_resource(experimental_allow_widgets=True)
+def get_cookie_manager():
+    return stx.CookieManager()
 
 def get_login_url():
     """
@@ -40,6 +47,8 @@ def login_with_google():
     """
     Handles the Google Login flow using OAuth 2.0.
     """
+    cookie_manager = get_cookie_manager()
+    
     # 1. Check for OAuth Callback (Code in URL)
     if "code" in st.query_params:
         code = st.query_params["code"]
@@ -70,6 +79,9 @@ def login_with_google():
                     "avatar": avatar,
                 }
                 st.session_state.logged_in = True
+                
+                # Set Session Cookie (5 minutes expiry)
+                cookie_manager.set("session_token", email, expires_at=datetime.now() + timedelta(seconds=300))
             
             with st.spinner("💾 Salvando no banco de dados..."):
                 # Salvar usuário no Firestore
@@ -80,13 +92,13 @@ def login_with_google():
             with st.spinner("📊 Carregando seu progresso..."):
                 # Carregar progresso salvo
                 from utils import load_user_progress
-                from utils import load_user_progress
                 load_user_progress(email)
                 
             # Clean URL and Rerun
             st.query_params.clear()
             st.success(f"✅ Bem-vindo, {name}!")
             st.balloons()
+            time.sleep(1) # Give time for cookie to set
             st.rerun()
             
         except Exception as e:
@@ -114,15 +126,21 @@ def login_with_google():
 
 def logout():
     """Logs out the user"""
+    cookie_manager = get_cookie_manager()
+    
     # Salvar antes de sair
     with st.spinner("💾 Salvando seu progresso..."):
-        from utils import save_user_progress
         from utils import save_user_progress
         save_user_progress()
         
     st.session_state.user_profile = None
     st.session_state.logged_in = False
+    
+    # Delete Cookie
+    cookie_manager.delete("session_token")
+    
     st.success("👋 Até logo!")
+    time.sleep(1)
     st.rerun()
 
     return st.session_state.logged_in
@@ -134,5 +152,37 @@ def check_authentication():
     """
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
+        
+    if st.session_state.logged_in:
+        # Refresh cookie if logged in
+        cookie_manager = get_cookie_manager()
+        email = st.session_state.user_profile.get("email")
+        if email:
+             # Extend session by 5 minutes on activity
+            cookie_manager.set("session_token", email, expires_at=datetime.now() + timedelta(seconds=300))
+        return True
+        
+    # Check for cookie if not logged in
+    cookie_manager = get_cookie_manager()
+    session_token = cookie_manager.get("session_token")
     
-    return st.session_state.logged_in
+    if session_token:
+        email = session_token
+        db = get_database()
+        user_data = db.get_user(email)
+        
+        if user_data:
+            st.session_state.user_profile = {
+                "name": user_data.get("name"),
+                "email": user_data.get("email"),
+                "avatar": user_data.get("avatar"),
+            }
+            st.session_state.logged_in = True
+            
+            # Load progress
+            from utils import load_user_progress
+            load_user_progress(email)
+            
+            return True
+            
+    return False
