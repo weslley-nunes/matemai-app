@@ -18,9 +18,8 @@ SCOPES = [
 # Load Redirect URI from environment or default to localhost
 REDIRECT_URI = os.getenv("REDIRECT_URI", "http://localhost:8501")
 
-@st.cache_resource
 def get_cookie_manager():
-    return stx.CookieManager()
+    return stx.CookieManager(key="cookie_manager")
 
 def get_login_url():
     """
