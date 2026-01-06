@@ -599,6 +599,13 @@ def show_sidebar():
         if st.session_state.user_profile and st.session_state.user_profile.get("email") == "weslley.uca@gmail.com":
             st.page_link("pages/9_Admin_Panel.py", label="Admin Panel", icon="🛡️")
         
+        # Initialize avatar_url
+        avatar_url = None
+        if st.session_state.user_profile and st.session_state.user_profile.get("avatar"):
+            avatar_url = st.session_state.user_profile["avatar"]
+        elif os.path.exists("assets/mascot.png"):
+            avatar_url = get_img_as_base64("assets/mascot.png")
+
         # Avatar Display with Hover Effect
         final_avatar_url = avatar_url
         if st.session_state.user_profile and st.session_state.user_profile.get("avatar_config"):
