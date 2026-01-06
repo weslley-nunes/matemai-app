@@ -599,31 +599,77 @@ def show_sidebar():
         if st.session_state.user_profile and st.session_state.user_profile.get("email") == "weslley.uca@gmail.com":
             st.page_link("pages/9_Admin_Panel.py", label="Admin Panel", icon="🛡️")
         
-        st.markdown("---")
-        avatar_url = None
-        if st.session_state.user_profile and st.session_state.user_profile.get("avatar"):
-            avatar_url = st.session_state.user_profile["avatar"]
-        elif os.path.exists("assets/mascot.png"):
-            avatar_url = get_img_as_base64("assets/mascot.png")
-            
-        if avatar_url:
-            st.markdown(f"""
-            <div class="profile-photo-frame">
-                <img src="{avatar_url}" width="100">
-            </div>
-            """, unsafe_allow_html=True)
-            
-        # Display Custom Avatar below photo
+        # Avatar Display with Hover Effect
+        final_avatar_url = avatar_url
         if st.session_state.user_profile and st.session_state.user_profile.get("avatar_config"):
-            custom_avatar_url = get_avatar_url(st.session_state.user_profile["avatar_config"])
+            final_avatar_url = get_avatar_url(st.session_state.user_profile["avatar_config"])
+            
+        if final_avatar_url:
             st.markdown(f"""
-            <div style="text-align: center; margin-top: -10px; margin-bottom: 10px;">
-                <img src="{custom_avatar_url}" width="80" style="border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <style>
+            .avatar-container {{
+                position: relative;
+                width: 120px;
+                height: 120px;
+                margin: 0 auto;
+                border-radius: 50%;
+                overflow: hidden;
+                border: 3px solid #0047AB;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                transition: transform 0.3s ease;
+            }}
+            .avatar-container:hover {{
+                transform: scale(1.05);
+            }}
+            .avatar-image {{
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }}
+            .avatar-overlay {{
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.6);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                cursor: pointer;
+            }}
+            .avatar-container:hover .avatar-overlay {{
+                opacity: 1;
+            }}
+            .edit-icon {{
+                font-size: 24px;
+                color: white;
+                margin-bottom: 5px;
+            }}
+            .edit-text {{
+                color: white;
+                font-size: 12px;
+                font-weight: bold;
+                text-transform: uppercase;
+            }}
+            </style>
+            
+            <div class="avatar-container" onclick="window.parent.document.querySelector('a[href*=\'Meu_Perfil\']').click()">
+                <img src="{final_avatar_url}" class="avatar-image">
+                <div class="avatar-overlay">
+                    <div class="edit-icon">✏️</div>
+                    <div class="edit-text">Editar</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
+                <a href="/Meu_Perfil" target="_self" style="text-decoration: none; color: #666; font-size: 0.9em; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                    ⚙️ Personalizar Avatar
+                </a>
             </div>
             """, unsafe_allow_html=True)
-        
-        # Show Double XP indicator if active
-        double_xp_active, remaining_seconds = is_double_xp_active()
         
         if double_xp_active:
             minutes = int(remaining_seconds // 60)
