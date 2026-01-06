@@ -1,4 +1,4 @@
-# Mapeamento de Assets do Avatar (DiceBear Avataaars)
+# Mapeamento de Assets do Avatar (DiceBear Avataaars) - v1.1
 
 AVATAR_ASSETS = {
     "top": [
