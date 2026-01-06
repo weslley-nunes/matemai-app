@@ -1,5 +1,7 @@
 import streamlit as st
 from utils import get_ai_methodology, setup_app, show_sidebar
+from avatar_assets import AVATAR_ASSETS, get_avatar_url
+from database import get_database
 
 # Initialize Session State
 setup_app()
@@ -16,8 +18,12 @@ if st.session_state.user_profile and st.session_state.user_profile.get("methodol
     st.info("Você pode atualizar seus dados abaixo para recalcular sua metodologia.")
 
 st.write("Personalize seu perfil para o Agente de IA adaptar o ensino.")
+st.markdown("---")
 
-with st.form("profile_form"):
+tab_profile, tab_avatar = st.tabs(["📝 Dados Pessoais", "🎨 Meu Avatar"])
+
+with tab_profile:
+    with st.form("profile_form"):
     # Get current values or defaults
     current_profile = st.session_state.user_profile or {}
     
@@ -94,6 +100,108 @@ with st.form("profile_form"):
             import time
             time.sleep(5)
             st.switch_page("pages/2_Desafios_Gamificados.py")
+
+with tab_avatar:
+    st.header("Estúdio de Criação de Avatar")
+    
+    col_preview, col_wardrobe = st.columns([1, 2])
+    
+    # Initialize avatar config in session state if not exists
+    if "avatar_config" not in st.session_state:
+        st.session_state.avatar_config = {
+            "top": "shortHair",
+            "accessories": "prescription01",
+            "hairColor": "brown",
+            "clothing": "hoodie",
+            "eyes": "happy",
+            "eyebrows": "default",
+            "mouth": "smile",
+            "skinColor": "light"
+        }
+        
+    # Load from profile if available (and not just initialized default)
+    if st.session_state.user_profile and st.session_state.user_profile.get("avatar_config"):
+        # Merge to ensure all keys exist
+        saved_config = st.session_state.user_profile.get("avatar_config")
+        st.session_state.avatar_config.update(saved_config)
+
+    # Current Level
+    user_level = st.session_state.level
+    
+    with col_wardrobe:
+        st.subheader("Guarda-Roupa")
+        
+        # Categories to edit
+        categories = {
+            "Pele": "skinColor",
+            "Cabelo/Chapéu": "top",
+            "Cor do Cabelo": "hairColor",
+            "Roupas": "clothing",
+            "Olhos": "eyes",
+            "Sobrancelhas": "eyebrows",
+            "Boca": "mouth",
+            "Acessórios": "accessories"
+        }
+        
+        # Create tabs for categories to organize UI
+        cat_tabs = st.tabs(list(categories.keys()))
+        
+        for i, (cat_name, cat_key) in enumerate(categories.items()):
+            with cat_tabs[i]:
+                assets = AVATAR_ASSETS.get(cat_key, [])
+                
+                # Grid layout for items
+                cols = st.columns(3)
+                for idx, item in enumerate(assets):
+                    is_locked = item["level"] > user_level
+                    
+                    with cols[idx % 3]:
+                        # Visual indicator for selection
+                        is_selected = st.session_state.avatar_config.get(cat_key) == item["id"]
+                        
+                        btn_label = f"{item['name']}"
+                        if is_locked:
+                            btn_label = f"🔒 Lvl {item['level']}"
+                        elif is_selected:
+                            btn_label = f"✅ {item['name']}"
+                            
+                        # Button logic
+                        if st.button(
+                            btn_label, 
+                            key=f"btn_{cat_key}_{item['id']}", 
+                            disabled=is_locked,
+                            use_container_width=True,
+                            type="primary" if is_selected else "secondary"
+                        ):
+                            st.session_state.avatar_config[cat_key] = item["id"]
+                            st.rerun()
+                            
+    with col_preview:
+        st.subheader("Visualização")
+        
+        # Generate URL
+        avatar_url = get_avatar_url(st.session_state.avatar_config)
+        
+        # Display Avatar
+        st.image(avatar_url, width=250)
+        
+        # Save Button
+        if st.button("💾 Salvar Avatar", type="primary", use_container_width=True):
+            with st.spinner("Salvando novo visual..."):
+                db = get_database()
+                email = st.session_state.user_profile.get("email")
+                if db.save_avatar_config(email, st.session_state.avatar_config, avatar_url):
+                    # Update local session state
+                    st.session_state.user_profile["avatar"] = avatar_url
+                    st.session_state.user_profile["avatar_config"] = st.session_state.avatar_config
+                    st.success("Avatar atualizado com sucesso!")
+                    st.balloons()
+                    # Rerun to update sidebar
+                    import time
+                    time.sleep(1)
+                    st.rerun()
+                else:
+                    st.error("Erro ao salvar avatar.")
 
 st.markdown("---")
 st.markdown("### 📜 Histórico de Habilidades Desenvolvidas")

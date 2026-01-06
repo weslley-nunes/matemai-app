@@ -130,7 +130,9 @@ class FirestoreDB:
                     'completed_bncc_skills': data.get('completed_bncc_skills', {}),
                     # Neural Battery
                     'neural_battery': data.get('neural_battery', 10),
-                    'last_battery_reset': data.get('last_battery_reset', datetime.now().strftime("%Y-%m-%d"))
+                    'last_battery_reset': data.get('last_battery_reset', datetime.now().strftime("%Y-%m-%d")),
+                    # Avatar Config
+                    'avatar_config': data.get('avatar_config', {})
                 }
             return None
         except Exception as e:
@@ -243,6 +245,25 @@ class FirestoreDB:
             return True
         except Exception as e:
             st.error(f"Erro ao salvar pedido: {e}")
+            return False
+
+    def save_avatar_config(self, email, avatar_config, avatar_url):
+        """Salva a configuração do avatar do usuário"""
+        if not self.db:
+            return False
+            
+        try:
+            # Atualizar URL do avatar no perfil do usuário
+            self.db.collection('users').document(email).update({'avatar': avatar_url})
+            
+            # Salvar configuração detalhada no progresso
+            self.db.collection('progress').document(email).update({
+                'avatar_config': avatar_config,
+                'profile_data.avatar': avatar_url # Update nested profile data too
+            })
+            return True
+        except Exception as e:
+            st.error(f"Erro ao salvar avatar: {e}")
             return False
 
     def get_all_users(self):
