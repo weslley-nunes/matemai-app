@@ -114,6 +114,20 @@ def get_avatar_url(config):
     base_url = "https://api.dicebear.com/9.x/avataaars/svg"
     params = []
     
+    # Use a seed based on the configuration to ensure consistency
+    # If config is empty, use a random seed or a default one
+    import json
+    import hashlib
+    
+    if not config:
+        seed = "Felix" # Default seed
+    else:
+        # Create a deterministic seed from the config
+        config_str = json.dumps(config, sort_keys=True)
+        seed = hashlib.md5(config_str.encode()).hexdigest()
+    
+    params.append(f"seed={seed}")
+    
     for key, value in config.items():
         if value:
             params.append(f"{key}={value}")
