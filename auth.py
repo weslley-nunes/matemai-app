@@ -3,9 +3,7 @@ from database import get_database
 import google_auth_oauthlib.flow
 from googleapiclient.discovery import build
 import os
-import extra_streamlit_components as stx
 import time
-from datetime import datetime, timedelta
 
 # Configuration
 # Ensure you have client_secret.json in the root directory
@@ -17,9 +15,6 @@ SCOPES = [
 ]
 # Load Redirect URI from environment or default to localhost
 REDIRECT_URI = os.getenv("REDIRECT_URI", "http://localhost:8501")
-
-def get_manager():
-    return stx.CookieManager()
 
 def get_login_url():
     """
@@ -42,7 +37,7 @@ def get_login_url():
         st.error(f"Erro ao gerar URL de login: {str(e)}")
         return None
 
-def login_with_google(cookie_manager):
+def login_with_google():
     """
     Handles the Google Login flow using OAuth 2.0.
     """
@@ -76,9 +71,6 @@ def login_with_google(cookie_manager):
                     "avatar": avatar,
                 }
                 st.session_state.logged_in = True
-                
-                # Set Session Cookie (5 minutes expiry)
-                cookie_manager.set("session_token", email, expires_at=datetime.now() + timedelta(seconds=300))
             
             with st.spinner("💾 Salvando no banco de dados..."):
                 # Salvar usuário no Firestore
@@ -95,7 +87,6 @@ def login_with_google(cookie_manager):
             st.query_params.clear()
             st.success(f"✅ Bem-vindo, {name}!")
             st.balloons()
-            time.sleep(1) # Give time for cookie to set
             st.rerun()
             
         except Exception as e:
@@ -121,7 +112,7 @@ def login_with_google(cookie_manager):
         else:
             st.error("Erro ao configurar login com Google.")
 
-def logout(cookie_manager):
+def logout():
     """Logs out the user"""
     # Salvar antes de sair
     with st.spinner("💾 Salvando seu progresso..."):
@@ -130,52 +121,17 @@ def logout(cookie_manager):
         
     st.session_state.user_profile = None
     st.session_state.logged_in = False
-    
-    # Delete Cookie
-    cookie_manager.delete("session_token")
-    
     st.success("👋 Até logo!")
-    time.sleep(1)
     st.rerun()
 
     return st.session_state.logged_in
 
-def check_authentication(cookie_manager):
+def check_authentication():
     """
     Checks if the user is logged in.
     Returns True if logged in, False otherwise.
     """
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
-        
-    if st.session_state.logged_in:
-        # Refresh cookie if logged in
-        email = st.session_state.user_profile.get("email")
-        if email:
-             # Extend session by 5 minutes on activity
-            cookie_manager.set("session_token", email, expires_at=datetime.now() + timedelta(seconds=300))
-        return True
-        
-    # Check for cookie if not logged in
-    session_token = cookie_manager.get("session_token")
     
-    if session_token:
-        email = session_token
-        db = get_database()
-        user_data = db.get_user(email)
-        
-        if user_data:
-            st.session_state.user_profile = {
-                "name": user_data.get("name"),
-                "email": user_data.get("email"),
-                "avatar": user_data.get("avatar"),
-            }
-            st.session_state.logged_in = True
-            
-            # Load progress
-            from utils import load_user_progress
-            load_user_progress(email)
-            
-            return True
-            
-    return False
+    return st.session_state.logged_in
