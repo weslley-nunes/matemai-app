@@ -18,8 +18,9 @@ SCOPES = [
 # Load Redirect URI from environment or default to localhost
 REDIRECT_URI = os.getenv("REDIRECT_URI", "http://localhost:8501")
 
-def get_cookie_manager():
-    return stx.CookieManager(key="cookie_manager")
+@st.cache_resource(experimental_allow_widgets=True)
+def get_manager():
+    return stx.CookieManager()
 
 def get_login_url():
     """
@@ -42,12 +43,10 @@ def get_login_url():
         st.error(f"Erro ao gerar URL de login: {str(e)}")
         return None
 
-def login_with_google():
+def login_with_google(cookie_manager):
     """
     Handles the Google Login flow using OAuth 2.0.
     """
-    cookie_manager = get_cookie_manager()
-    
     # 1. Check for OAuth Callback (Code in URL)
     if "code" in st.query_params:
         code = st.query_params["code"]
@@ -123,10 +122,8 @@ def login_with_google():
         else:
             st.error("Erro ao configurar login com Google.")
 
-def logout():
+def logout(cookie_manager):
     """Logs out the user"""
-    cookie_manager = get_cookie_manager()
-    
     # Salvar antes de sair
     with st.spinner("💾 Salvando seu progresso..."):
         from utils import save_user_progress
@@ -144,7 +141,7 @@ def logout():
 
     return st.session_state.logged_in
 
-def check_authentication():
+def check_authentication(cookie_manager):
     """
     Checks if the user is logged in.
     Returns True if logged in, False otherwise.
@@ -154,7 +151,6 @@ def check_authentication():
         
     if st.session_state.logged_in:
         # Refresh cookie if logged in
-        cookie_manager = get_cookie_manager()
         email = st.session_state.user_profile.get("email")
         if email:
              # Extend session by 5 minutes on activity
@@ -162,7 +158,6 @@ def check_authentication():
         return True
         
     # Check for cookie if not logged in
-    cookie_manager = get_cookie_manager()
     session_token = cookie_manager.get("session_token")
     
     if session_token:

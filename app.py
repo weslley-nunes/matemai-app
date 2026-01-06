@@ -2,7 +2,7 @@ import streamlit as st
 from dotenv import load_dotenv
 load_dotenv()
 from utils import setup_app, get_ai_agent, show_sidebar, get_img_as_base64
-from auth import login_with_google, check_authentication, logout
+from auth import login_with_google, check_authentication, logout, get_manager
 from database import get_database
 import os
 
@@ -13,6 +13,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Initialize Cookie Manager (Once per run)
+cookie_manager = get_manager()
 
 # SEO Hidden Content (For Crawlers)
 st.markdown("""
@@ -43,7 +46,7 @@ except FileNotFoundError:
 setup_app(is_public_page=True)
 
 # Authentication Check
-if not check_authentication():
+if not check_authentication(cookie_manager):
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         # Images side by side, vertically centered
@@ -57,7 +60,7 @@ if not check_authentication():
             
         # Check for OAuth Callback (Code in URL)
         if "code" in st.query_params:
-            login_with_google()
+            login_with_google(cookie_manager)
             
         st.markdown('<p class="login-title" style="font-size: 3rem;">O jeito grátis, divertido e eficaz de aprender matemática!</p>', unsafe_allow_html=True)
         # Get Login URL
