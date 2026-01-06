@@ -2,9 +2,8 @@
 
 AVATAR_ASSETS = {
     "top": [
-        {"id": "shortHair", "name": "Cabelo Curto", "level": 1},
-        {"id": "longHair", "name": "Cabelo Longo", "level": 1},
-        {"id": "eyepatch", "name": "Tapa-Olho", "level": 3},
+        {"id": "shortFlat", "name": "Cabelo Curto", "level": 1},
+        {"id": "longButNotTooLong", "name": "Cabelo Longo", "level": 1},
         {"id": "hat", "name": "Chapéu", "level": 5},
         {"id": "hijab", "name": "Hijab", "level": 1},
         {"id": "turban", "name": "Turbante", "level": 1},
@@ -25,6 +24,7 @@ AVATAR_ASSETS = {
         {"id": "theCaesar", "name": "Corte Caesar", "level": 1},
     ],
     "accessories": [
+        {"id": "eyepatch", "name": "Tapa-Olho", "level": 3},
         {"id": "kurt", "name": "Óculos Kurt", "level": 5},
         {"id": "prescription01", "name": "Óculos Grau 1", "level": 1},
         {"id": "prescription02", "name": "Óculos Grau 2", "level": 1},
