@@ -108,22 +108,21 @@ with tab_avatar:
     
     # Initialize avatar config in session state if not exists
     if "avatar_config" not in st.session_state:
-        st.session_state.avatar_config = {
-            "top": "shortHair",
-            "accessories": "prescription01",
-            "hairColor": "brown",
-            "clothing": "hoodie",
-            "eyes": "happy",
-            "eyebrows": "default",
-            "mouth": "smile",
-            "skinColor": "light"
-        }
-        
-    # Load from profile if available (and not just initialized default)
-    if st.session_state.user_profile and st.session_state.user_profile.get("avatar_config"):
-        # Merge to ensure all keys exist
-        saved_config = st.session_state.user_profile.get("avatar_config")
-        st.session_state.avatar_config.update(saved_config)
+        # Try to load from profile first
+        if st.session_state.user_profile and st.session_state.user_profile.get("avatar_config"):
+            st.session_state.avatar_config = st.session_state.user_profile.get("avatar_config").copy()
+        else:
+            # Default config
+            st.session_state.avatar_config = {
+                "top": "shortHair",
+                "accessories": "prescription01",
+                "hairColor": "2c1b18", # Black
+                "clothing": "hoodie",
+                "eyes": "happy",
+                "eyebrows": "default",
+                "mouth": "smile",
+                "skinColor": "edb98a" # Light
+            }
 
     # Current Level
     user_level = st.session_state.level
