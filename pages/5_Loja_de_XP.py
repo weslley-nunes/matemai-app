@@ -1,6 +1,7 @@
 import streamlit as st
 from utils import setup_app, show_sidebar, save_user_progress
-from avatar_assets import get_shop_items
+from avatar_assets import get_shop_items, get_avatar_url
+from database import get_database
 import time
 
 setup_app()
@@ -17,6 +18,46 @@ if "inventory" not in st.session_state:
 shop_items = get_shop_items()
 
 # --- FUNÇÕES ---
+def get_item_preview_url(item):
+    """Gera URL do avatar com o item aplicado para preview"""
+    # Pega config atual ou padrão
+    current_config = st.session_state.get("avatar_config", {}).copy()
+    if not current_config:
+        # Fallback se não tiver config
+        from avatar_assets import generate_random_avatar_config
+        current_config = generate_random_avatar_config()
+        
+    # Aplica o item na config temporária
+    current_config[item['category']] = item['id']
+    
+    return get_avatar_url(current_config)
+
+def equip_item(item):
+    """Equipa o item e salva no banco"""
+    if "avatar_config" not in st.session_state:
+        st.session_state.avatar_config = {}
+        
+    # Atualiza config local
+    st.session_state.avatar_config[item['category']] = item['id']
+    
+    # Gera nova URL
+    new_avatar_url = get_avatar_url(st.session_state.avatar_config)
+    
+    # Salva no banco
+    db = get_database()
+    email = st.session_state.user_profile.get("email")
+    
+    if db.save_avatar_config(email, st.session_state.avatar_config, new_avatar_url):
+        # Atualiza perfil na sessão
+        st.session_state.user_profile["avatar"] = new_avatar_url
+        st.session_state.user_profile["avatar_config"] = st.session_state.avatar_config
+        
+        st.toast(f"Item {item['name']} equipado!", icon="👕")
+        time.sleep(1)
+        st.rerun()
+    else:
+        st.error("Erro ao equipar item.")
+
 def buy_item(item):
     price = item['price']
     
@@ -36,14 +77,11 @@ def buy_item(item):
         # Feedback visual
         st.balloons()
         st.success(f"Você comprou **{item['name']}**! 🎉")
-        st.markdown(f"""
-        <div style="text-align: center; padding: 20px; background-color: #d4edda; border-radius: 10px; margin-top: 10px;">
-            <h3 style="color: #155724;">Item Desbloqueado!</h3>
-            <p>Vá até <b>Meu Perfil</b> para equipar seu novo item.</p>
-        </div>
-        """, unsafe_allow_html=True)
         
-        time.sleep(3)
+        # Opção de equipar imediatamente (via session state para persistir após rerun)
+        st.session_state.just_bought = item['id']
+        
+        time.sleep(2)
         st.rerun()
     else:
         st.error(f"Você precisa de mais {price - st.session_state.xp} XP para comprar este item.")
@@ -84,19 +122,25 @@ for i, (cat_key, cat_name) in enumerate(active_categories.items()):
         for idx, item in enumerate(category_items):
             with cols[idx % 3]:
                 with st.container(border=True):
-                    st.markdown(f"### {item['name']}")
+                    # Preview do Avatar com o Item
+                    preview_url = get_item_preview_url(item)
+                    st.image(preview_url, use_container_width=True)
                     
-                    # Verificar se já possui o item
+                    st.markdown(f"**{item['name']}**")
+                    
+                    # Verificar estado do item
                     is_owned = item['id'] in st.session_state.inventory
+                    is_equipped = st.session_state.get("avatar_config", {}).get(cat_key) == item['id']
                     
-                    if is_owned:
-                        st.info("✅ Já possui")
+                    if is_equipped:
+                        st.button("✅ Equipado", key=f"eqd_{item['id']}", disabled=True, use_container_width=True)
+                    elif is_owned:
+                        if st.button("👕 Equipar", key=f"eq_{item['id']}", type="primary", use_container_width=True):
+                            equip_item(item)
                     else:
                         st.markdown(f"**💰 {item['price']} XP**")
-                        
-                        # Botão de compra com callback
                         if st.button(f"Comprar", key=f"buy_{item['category']}_{item['id']}", use_container_width=True):
                             buy_item(item)
-                            
+
 st.markdown("---")
-st.info("💡 Dica: Complete missões diárias para ganhar mais XP e comprar itens raros!")
+st.info("💡 Dica: O preview mostra como o item ficará no seu avatar atual!")
