@@ -374,6 +374,10 @@ def load_user_progress(email):
         st.session_state.last_study_date = progress.get('last_study_date', "")
         st.session_state.last_study_date = progress.get('last_study_date', "")
         
+        # Load avatar config into user_profile
+        if progress.get('avatar_config'):
+            st.session_state.user_profile['avatar_config'] = progress['avatar_config']
+        
         # Ensure avatar config exists
         if not st.session_state.user_profile.get("avatar_config"):
             st.session_state.user_profile["avatar_config"] = generate_random_avatar_config()
