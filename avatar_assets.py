@@ -33,16 +33,16 @@ AVATAR_ASSETS = {
         {"id": "wayfarers", "name": "Wayfarers", "level": 5},
     ],
     "hairColor": [
-        {"id": "auburn", "name": "Ruivo Escuro", "level": 1},
-        {"id": "black", "name": "Preto", "level": 1},
-        {"id": "blonde", "name": "Loiro", "level": 1},
-        {"id": "blondeGolden", "name": "Loiro Dourado", "level": 1},
-        {"id": "brown", "name": "Castanho", "level": 1},
-        {"id": "brownDark", "name": "Castanho Escuro", "level": 1},
-        {"id": "pastelPink", "name": "Rosa Pastel", "level": 5},
-        {"id": "platinum", "name": "Platinado", "level": 3},
-        {"id": "red", "name": "Vermelho", "level": 1},
-        {"id": "silverGray", "name": "Grisalho", "level": 1},
+        {"id": "a55728", "name": "Ruivo Escuro", "level": 1},
+        {"id": "2c1b18", "name": "Preto", "level": 1},
+        {"id": "b58143", "name": "Loiro", "level": 1},
+        {"id": "d6b370", "name": "Loiro Dourado", "level": 1},
+        {"id": "724133", "name": "Castanho", "level": 1},
+        {"id": "4a312c", "name": "Castanho Escuro", "level": 1},
+        {"id": "f59797", "name": "Rosa Pastel", "level": 5},
+        {"id": "ecdcbf", "name": "Platinado", "level": 3},
+        {"id": "c93305", "name": "Vermelho", "level": 1},
+        {"id": "e8e1e1", "name": "Grisalho", "level": 1},
     ],
     "clothing": [
         {"id": "blazerAndShirt", "name": "Blazer e Camisa", "level": 5},
@@ -97,13 +97,13 @@ AVATAR_ASSETS = {
         {"id": "vomit", "name": "Enjoado", "level": 1},
     ],
     "skinColor": [
-        {"id": "tanned", "name": "Bronzeado", "level": 1},
-        {"id": "yellow", "name": "Amarelo", "level": 1},
-        {"id": "pale", "name": "Pálido", "level": 1},
-        {"id": "light", "name": "Claro", "level": 1},
-        {"id": "brown", "name": "Marrom", "level": 1},
-        {"id": "darkBrown", "name": "Marrom Escuro", "level": 1},
-        {"id": "black", "name": "Negro", "level": 1},
+        {"id": "fd9841", "name": "Bronzeado", "level": 1},
+        {"id": "f8d25c", "name": "Amarelo", "level": 1},
+        {"id": "ffdbb4", "name": "Pálido", "level": 1},
+        {"id": "edb98a", "name": "Claro", "level": 1},
+        {"id": "d08b5b", "name": "Marrom", "level": 1},
+        {"id": "ae5d29", "name": "Marrom Escuro", "level": 1},
+        {"id": "614335", "name": "Negro", "level": 1},
     ]
 }
 
@@ -111,7 +111,7 @@ def get_avatar_url(config):
     """
     Gera a URL do DiceBear com base na configuração.
     """
-    base_url = "https://api.dicebear.com/9.x/avataaars/png"
+    base_url = "https://api.dicebear.com/9.x/avataaars/svg"
     params = []
     
     for key, value in config.items():
