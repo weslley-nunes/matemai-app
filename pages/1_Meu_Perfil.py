@@ -153,7 +153,7 @@ with col_preview:
     # --- Avatar Reset Section (Emergency Fix) ---
     st.markdown("---")
     if st.checkbox("🔧 Problemas com o Avatar? Clique aqui"):
-        st.warning("Isso irá apagar seu avatar atual e restaurar o padrão (Careca e Sorrindo). Use se a imagem não estiver carregando.")
+        st.warning("Isso irá apagar seu avatar atual e restaurar o padrão (Cabelo Curto e Sorrindo). Use se a imagem não estiver carregando.")
         if st.button("⚠️ Redefinir Avatar Completamente", type="primary"):
             from utils import get_default_avatar_config
             from database import get_database
