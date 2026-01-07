@@ -624,8 +624,8 @@ def show_sidebar():
             avatar_url = st.session_state.user_profile["avatar"]
         else:
              # Fallback to default avatar (bald & smiling)
-             from utils import get_default_avatar_config
-             from avatar_assets import get_avatar_url
+             # get_avatar_url is imported at top level
+             # get_default_avatar_config is defined in this module
              if not st.session_state.user_profile.get("avatar_config"):
                  st.session_state.user_profile["avatar_config"] = get_default_avatar_config()
              
