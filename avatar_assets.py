@@ -103,7 +103,7 @@ AVATAR_ASSETS = {
         {"id": "d08b5b", "name": "Marrom", "level": 1},
         {"id": "ae5d29", "name": "Marrom Escuro", "level": 1},
         {"id": "614335", "name": "Negro", "level": 1},
-    ]
+    ],
     "clotheColor": [
         {"id": "262e33", "name": "Preto", "level": 1},
         {"id": "65c9ff", "name": "Azul Claro", "level": 1},
