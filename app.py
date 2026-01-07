@@ -1,7 +1,7 @@
 # Force reload - v2
 import streamlit as st
 # Force Deploy v2.2 (Fix Typo)
-from utils import setup_app, show_sidebar, get_ai_response
+from utils import setup_app, show_sidebar, get_ai_agent
 from utils import setup_app, get_ai_agent, show_sidebar, get_img_as_base64
 from auth import login_with_google, check_authentication, logout
 from database import get_database
