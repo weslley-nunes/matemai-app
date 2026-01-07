@@ -135,10 +135,27 @@ with col_preview:
     st.image("https://api.dicebear.com/9.x/avataaars/svg?seed=Felix", width=100, caption="Avatar de Teste")
 
     # Display Avatar
-    try:
-        st.image(avatar_url, width=250)
     except Exception as e:
         st.error(f"Erro ao carregar imagem: {e}")
+
+    # --- DIAGNÓSTICO DETALHADO (Versão 3.2) ---
+    with st.expander("🛠️ Diagnóstico de Parâmetros (Clique se a imagem estiver quebrada)"):
+        st.write("Testando cada item isoladamente:")
+        base = "https://api.dicebear.com/9.x/avataaars/svg?seed=Felix"
+        
+        # Teste 1: Base
+        st.write(f"1. Base (Deve funcionar): [Link]({base})")
+        st.image(base, width=50, caption="Base")
+        
+        # Teste Iterativo
+        for key, val in st.session_state.avatar_config.items():
+            if not val: continue
+            test_url = f"{base}&{key}={val}"
+            st.write(f"Testando **{key}={val}**: [Link]({test_url})")
+            try:
+                st.image(test_url, width=50)
+            except:
+                st.error(f"❌ FALHA no item: {key}={val}")
     
     # Save Button
     if st.button("💾 Salvar Avatar", type="primary", use_container_width=True):
