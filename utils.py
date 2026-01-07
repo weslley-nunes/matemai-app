@@ -619,17 +619,23 @@ def show_sidebar():
             st.page_link("pages/9_Admin_Panel.py", label="Admin Panel", icon="🛡️")
         
         # Initialize avatar_url
-        avatar_url = None
-        if st.session_state.user_profile and st.session_state.user_profile.get("avatar"):
+        if st.session_state.user_profile and st.session_state.user_profile.get("avatar_config"):
+            # Prefer generated avatar from config (ensures validity)
+            from avatar_assets import get_avatar_url
+            avatar_url = get_avatar_url(st.session_state.user_profile["avatar_config"])
+        elif st.session_state.user_profile and st.session_state.user_profile.get("avatar"):
+            # Fallback to stored URL if no config (e.g. Google Image)
             avatar_url = st.session_state.user_profile["avatar"]
         else:
-             # Fallback to default avatar (bald & smiling)
-             # get_avatar_url is imported at top level
-             # get_default_avatar_config is defined in this module
-             if not st.session_state.user_profile.get("avatar_config"):
-                 st.session_state.user_profile["avatar_config"] = get_default_avatar_config()
-             
-             avatar_url = get_avatar_url(st.session_state.user_profile["avatar_config"])
+            # Final fallback to default
+            from utils import get_default_avatar_config
+            from avatar_assets import get_avatar_url
+            
+            # Initialize default
+            config = get_default_avatar_config()
+            st.session_state.user_profile["avatar_config"] = config
+            avatar_url = get_avatar_url(config)
+
 
         # Avatar Display with Hover Effect
         final_avatar_url = avatar_url

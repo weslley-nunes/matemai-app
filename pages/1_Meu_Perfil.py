@@ -35,6 +35,17 @@ if "avatar_config" not in st.session_state:
         from utils import get_default_avatar_config
         st.session_state.avatar_config = get_default_avatar_config()
 
+# Validate and Repair Config (Robust Fallback)
+from utils import get_default_avatar_config
+if not st.session_state.avatar_config or not isinstance(st.session_state.avatar_config, dict):
+    st.session_state.avatar_config = get_default_avatar_config()
+else:
+    # Ensure all keys exist
+    default = get_default_avatar_config()
+    for k, v in default.items():
+        if k not in st.session_state.avatar_config:
+            st.session_state.avatar_config[k] = v
+
 # Current Level
 user_level = st.session_state.level
 
