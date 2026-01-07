@@ -128,7 +128,10 @@ with col_preview:
     
     # Display Avatar
     try:
-        st.image(avatar_url, width=250)
+        # Center the image using columns
+        c_spacer1, c_img, c_spacer2 = st.columns([1, 4, 1])
+        with c_img:
+            st.image(avatar_url, width=250)
     except Exception as e:
         st.error(f"Erro ao carregar imagem: {e}")
     
