@@ -68,12 +68,17 @@ from utils import track_daily_mission_progress
 daily_progress = track_daily_mission_progress()
 today_minutes = daily_progress.get("study_time_minutes", 0)
 
+# Calculate visual time (DB + Session Buffer)
+total_seconds = (today_minutes * 60) + int(st.session_state.session_elapsed_time)
+display_minutes = total_seconds // 60
+display_seconds = total_seconds % 60
+
 st.title(f"⚔️ Missão: {mission['title']}")
 st.markdown(f"**Objetivo:** {mission['desc']}")
     
 st.markdown(f"""
 <div style="display: inline-block; background: #E3F2FD; padding: 5px 15px; border-radius: 20px; border: 1px solid #2196F3; margin-bottom: 10px;">
-    <span style="font-size: 14px; font-weight: bold; color: #1565C0;">⏱️ Tempo Hoje: {today_minutes} min</span>
+    <span style="font-size: 14px; font-weight: bold; color: #1565C0;">⏱️ Tempo Hoje: {display_minutes:02d}:{display_seconds:02d}</span>
 </div>
 """, unsafe_allow_html=True)
 
