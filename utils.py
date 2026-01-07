@@ -390,17 +390,32 @@ def load_user_progress(email):
         st.session_state.last_study_date = progress.get('last_study_date', "")
         
         # Load avatar config into user_profile
-        if progress.get('avatar_config'):
-            st.session_state.user_profile['avatar_config'] = progress['avatar_config']
+        loaded_config = progress.get('avatar_config', {})
+        st.session_state.user_profile['avatar_config'] = loaded_config
         
-        # Ensure avatar config exists
+        # Ensure avatar config exists and is complete (Sanitization on Load)
+        default_config = get_default_avatar_config()
+        should_save = False
+        
         if not st.session_state.user_profile.get("avatar_config"):
-            st.session_state.user_profile["avatar_config"] = get_default_avatar_config()
-            # Save it back to ensure persistence
+            st.session_state.user_profile["avatar_config"] = default_config
+            should_save = True
+        else:
+            # Check for missing keys in existing config
+            current = st.session_state.user_profile["avatar_config"]
+            for key, val in default_config.items():
+                if key not in current:
+                    current[key] = val
+                    should_save = True
+        
+        if should_save:
+            # Save it back to ensure persistence and fix broken avatars
+            full_url = get_avatar_url(st.session_state.user_profile["avatar_config"])
+            st.session_state.user_profile["avatar"] = full_url # Update runtime avatar
             db.save_avatar_config(
                 email, 
                 st.session_state.user_profile["avatar_config"], 
-                get_avatar_url(st.session_state.user_profile["avatar_config"])
+                full_url
             )
             
         return True
