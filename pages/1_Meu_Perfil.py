@@ -152,6 +152,34 @@ with col_preview:
             else:
                 st.error("Erro ao salvar avatar.")
 
+    # --- Avatar Reset Section (Emergency Fix) ---
+    st.markdown("---")
+    if st.checkbox("🔧 Problemas com o Avatar? Clique aqui"):
+        st.warning("Isso irá apagar seu avatar atual e restaurar o padrão (Careca e Sorrindo). Use se a imagem não estiver carregando.")
+        if st.button("⚠️ Redefinir Avatar Completamente", type="primary"):
+            from utils import get_default_avatar_config
+            from database import get_database
+            
+            with st.spinner("Restaurando configurações de fábrica..."):
+                default_config = get_default_avatar_config()
+                default_url = get_avatar_url(default_config)
+                
+                # Force update session
+                st.session_state.avatar_config = default_config
+                st.session_state.user_profile["avatar_config"] = default_config
+                st.session_state.user_profile["avatar"] = default_url
+                
+                # Force save to DB
+                db = get_database()
+                email = st.session_state.user_profile.get("email")
+                if db.save_avatar_config(email, default_config, default_url):
+                    st.success("Avatar redefinido com sucesso!")
+                    import time
+                    time.sleep(1)
+                    st.rerun()
+                else:
+                    st.error("Erro ao redefinir no banco de dados.")
+
 st.divider()
 
 # --- Personal Data Section ---
