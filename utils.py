@@ -401,12 +401,25 @@ def load_user_progress(email):
             st.session_state.user_profile["avatar_config"] = default_config
             should_save = True
         else:
-            # Check for missing keys in existing config
+            # Check for missing keys AND invalid values in existing config
             current = st.session_state.user_profile["avatar_config"]
-            for key, val in default_config.items():
+            from avatar_assets import AVATAR_ASSETS
+            
+            # 1. Fill missing keys & 2. Validate existing values
+            for key, default_val in default_config.items():
+                # Case A: Key missing
                 if key not in current:
-                    current[key] = val
+                    current[key] = default_val
                     should_save = True
+                else:
+                    # Case B: Value invalid (e.g. 'noHair', 'close', 'dizzy' which were removed)
+                    # Get list of valid IDs for this category
+                    valid_ids = [item["id"] for item in AVATAR_ASSETS.get(key, [])]
+                    
+                    # If current value is not in valid list, reset to default
+                    if current[key] not in valid_ids:
+                        current[key] = default_val
+                        should_save = True
         
         if should_save:
             # Save it back to ensure persistence and fix broken avatars

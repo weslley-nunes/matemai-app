@@ -56,10 +56,8 @@ AVATAR_ASSETS = {
         {"id": "shirtVNeck", "name": "Camiseta Gola V", "level": 1},
     ],
     "eyes": [
-        {"id": "close", "name": "Fechados", "level": 1},
         {"id": "cry", "name": "Chorando", "level": 1},
         {"id": "default", "name": "Normais", "level": 1},
-        {"id": "dizzy", "name": "Tonto", "level": 1},
         {"id": "eyeRoll", "name": "Revirando", "level": 2},
         {"id": "happy", "name": "Feliz", "level": 1},
         {"id": "hearts", "name": "Apaixonado", "level": 5, "price": 500},
