@@ -135,6 +135,8 @@ with col_preview:
     st.image("https://api.dicebear.com/9.x/avataaars/svg?seed=Felix", width=100, caption="Avatar de Teste")
 
     # Display Avatar
+    try:
+        st.image(avatar_url, width=250)
     except Exception as e:
         st.error(f"Erro ao carregar imagem: {e}")
 
