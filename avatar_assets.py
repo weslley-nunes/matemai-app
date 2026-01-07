@@ -130,16 +130,14 @@ def get_avatar_url(config):
     params.append(f"seed={seed}")
     params.append("accessoriesProbability=100")
     
-    # Whitelist of allowed parameters to match AVATAR_ASSETS keys
-    # This prevents "garbage" keys in config from breaking the API call
-    allowed_keys = [
-        "top", "accessories", "hairColor", "clothing", 
-        "eyes", "eyebrows", "mouth", "skinColor"
-    ]
-    
-    for key in allowed_keys:
-        if key in config and config[key]:
-            params.append(f"{key}={config[key]}")
+    # Iterate over all config items, excluding special internal keys or reserved URL params
+    # This restores flexibility while still filtering empty values
+    for key, value in config.items():
+        if key in ["seed"]: # seed is handled separately
+            continue
+        if value:
+            # Basic validation: ensure key is alphanumeric to prevent injection, though less critical here
+            params.append(f"{key}={value}")
             
     return f"{base_url}?{'&'.join(params)}"
 

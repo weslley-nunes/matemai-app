@@ -16,7 +16,7 @@ def get_default_avatar_config():
     Retorna a configuração padrão do avatar (careca e sorrindo).
     """
     return {
-        "top": "noHair",
+        "top": "shortFlat",
         "accessories": "prescription01",
         "hairColor": "2c1b18", # Black
         "clothing": "hoodie",
