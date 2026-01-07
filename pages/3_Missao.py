@@ -186,7 +186,7 @@ else:
                 from utils import consume_battery
                 
                 if not consume_battery():
-                    st.error("🔋 Bateria Neural Esgotada!")
+                st.warning("⚡ **Bateria Neural Descarregada!**\n\nVocê completou sua missão diária de aprendizado. O descanso é essencial para consolidar o conhecimento. Aproveite para relaxar e volte amanhã com força total!")
                     st.warning("Você precisa de mais energia para continuar aprendendo hoje.")
                     time.sleep(2)
                     st.switch_page("pages/6_Premium.py")

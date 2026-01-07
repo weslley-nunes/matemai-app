@@ -145,5 +145,42 @@ for i, (cat_key, cat_name) in enumerate(active_categories.items()):
                         if st.button(f"Comprar", key=f"buy_{item['category']}_{item['id']}", use_container_width=True):
                             buy_item(item)
 
+# --- CONSUMÍVEIS (ENERGIA) ---
+st.markdown("### ⚡ Energia & Consumíveis")
+
+col_energy1, col_energy2 = st.columns([1, 2])
+
+with col_energy1:
+    with st.container(border=True):
+        st.markdown("<div style='text-align: center; font-size: 40px;'>🔋</div>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center;'>Bateria Extra</h4>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; font-size: 12px;'>Recupera 1 energia</p>", unsafe_allow_html=True)
+        
+        # Logic for daily limit
+        from datetime import datetime
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        
+        if "daily_energy_purchases" not in st.session_state.user_profile or st.session_state.user_profile["daily_energy_purchases"].get("date") != today_str:
+            st.session_state.user_profile["daily_energy_purchases"] = {"date": today_str, "count": 0}
+            
+        purchased_count = st.session_state.user_profile["daily_energy_purchases"]["count"]
+        LIMIT = 10
+        PRICE = 50
+        
+        st.markdown(f"<p style='text-align: center; font-weight: bold;'>💰 {PRICE} XP</p>", unsafe_allow_html=True)
+        st.progress(purchased_count / LIMIT, text=f"Hoje: {purchased_count}/{LIMIT}")
+        
+        btn_disabled = purchased_count >= LIMIT or st.session_state.xp < PRICE
+        
+        if st.button("Comprar Energia", disabled=btn_disabled, use_container_width=True):
+            st.session_state.xp -= PRICE
+            st.session_state.neural_battery = min(st.session_state.neural_battery + 1, 10) # Cap at 10? User said "max 10 energias por dia" exchange, usually max capacity is 10 too.
+            # Increment count
+            st.session_state.user_profile["daily_energy_purchases"]["count"] += 1
+            
+            save_user_progress()
+            st.toast("Energia recarregada! ⚡", icon="🔋")
+            st.rerun()
+
 st.markdown("---")
 st.info("💡 Dica: O preview mostra como o item ficará no seu avatar atual!")

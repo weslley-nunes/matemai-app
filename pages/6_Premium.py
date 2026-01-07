@@ -5,6 +5,14 @@ import time
 setup_app()
 show_sidebar()
 
+# --- ADMIN RESTRICTION ---
+ADMIN_EMAIL = "weslley.uca@gmail.com"
+user_email = st.session_state.user_profile.get("email")
+
+if user_email != ADMIN_EMAIL:
+    st.warning("⚠️ Página em manutenção. Apenas administradores podem acessar neste momento.")
+    st.stop()
+
 st.title("💎 Premium & Energia")
 st.markdown("Potencialize seus estudos e nunca pare de aprender!")
 
