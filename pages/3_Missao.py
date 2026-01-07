@@ -34,8 +34,48 @@ if "current_mission" not in st.session_state or not st.session_state.current_mis
 mission = st.session_state.current_mission
 agent = get_ai_agent()
 
+# --- TIME TRACKING LOGIC ---
+if "mission_start_time" not in st.session_state:
+    st.session_state.mission_start_time = time.time()
+
+# Calculate time spent since last rerun
+current_time = time.time()
+elapsed = current_time - st.session_state.mission_start_time
+
+# Update session state timer (in memory accumulator)
+if "session_elapsed_time" not in st.session_state:
+    st.session_state.session_elapsed_time = 0
+
+# If reasonable time passed (e.g. < 30 mins idle), add to session accumulator
+if elapsed < 1800: 
+    st.session_state.session_elapsed_time += elapsed
+
+# Reset start time for next interval
+st.session_state.mission_start_time = current_time
+
+# Check if we should commit to DB/Daily Progress (e.g. every 1 minute of accumulated time)
+if st.session_state.session_elapsed_time >= 60:
+    minutes_to_add = int(st.session_state.session_elapsed_time / 60)
+    if minutes_to_add > 0:
+        from utils import update_mission_study_time
+        update_mission_study_time(minutes_to_add)
+        st.session_state.session_elapsed_time -= (minutes_to_add * 60)
+        # Optional: Toast notification for feedback
+        # st.toast(f"+{minutes_to_add} min de estudo registrados!", icon="⏱️")
+
+# Display Timer Badge
+from utils import track_daily_mission_progress
+daily_progress = track_daily_mission_progress()
+today_minutes = daily_progress.get("study_time_minutes", 0)
+
 st.title(f"⚔️ Missão: {mission['title']}")
 st.markdown(f"**Objetivo:** {mission['desc']}")
+    
+st.markdown(f"""
+<div style="display: inline-block; background: #E3F2FD; padding: 5px 15px; border-radius: 20px; border: 1px solid #2196F3; margin-bottom: 10px;">
+    <span style="font-size: 14px; font-weight: bold; color: #1565C0;">⏱️ Tempo Hoje: {today_minutes} min</span>
+</div>
+""", unsafe_allow_html=True)
 
 # Get and display BNCC alignment
 school_year = st.session_state.user_profile.get("school_year", "6º ano") if st.session_state.user_profile else "6º ano"
