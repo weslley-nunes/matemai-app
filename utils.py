@@ -20,7 +20,7 @@ def get_default_avatar_config():
         "accessories": "prescription01",
         "hairColor": "2c1b18", # Black
         "clothing": "hoodie",
-        "clotheColor": "3c4f5c", # Dark Gray
+        "clothesColor": "3c4f5c", # Dark Gray
         "eyes": "happy",
         "eyebrows": "default",
         "mouth": "smile",

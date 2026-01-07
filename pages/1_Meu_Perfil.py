@@ -74,7 +74,7 @@ with col_wardrobe:
         "Cabelo/Chapéu": "top",
         "Cor do Cabelo": "hairColor",
         "Roupas": "clothing",
-        "Cor da Roupa": "clotheColor",
+        "Cor da Roupa": "clothesColor",
         "Olhos": "eyes",
         "Sobrancelhas": "eyebrows",
         "Boca": "mouth",
