@@ -3,7 +3,6 @@
 AVATAR_ASSETS = {
     "top": [
         {"id": "shortFlat", "name": "Cabelo Curto", "level": 1},
-        {"id": "noHair", "name": "Careca", "level": 1},
         {"id": "longButNotTooLong", "name": "Cabelo Longo", "level": 1},
         {"id": "hat", "name": "Chapéu", "level": 5, "price": 500},
         {"id": "hijab", "name": "Hijab", "level": 1},
