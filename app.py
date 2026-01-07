@@ -1,7 +1,7 @@
 # Force reload - v2
 import streamlit as st
-from dotenv import load_dotenv
-load_dotenv()
+# Force Deploy v2.1 (Fix Avatar)
+from utils import setup_app, get_ai_responsenv
 from utils import setup_app, get_ai_agent, show_sidebar, get_img_as_base64
 from auth import login_with_google, check_authentication, logout
 from database import get_database
