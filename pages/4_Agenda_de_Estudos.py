@@ -289,7 +289,8 @@ st.markdown("---")
 
 st.markdown("### 📚 Marcar Estudo do Dia")
 
-# Mark today as studied (Automatic now)
+
+# Mark today as studied (Automatic now) -> Trigger Redeploy Fix
 if st.session_state.study_days.get(today_str, False):
     st.success(f"✅ Dia marcado automaticamente! Ofensiva: {st.session_state.current_study_streak} dias! 🔥")
 else:
