@@ -24,6 +24,7 @@ AVATAR_ASSETS = {
         {"id": "theCaesar", "name": "Corte Caesar", "level": 1},
     ],
     "accessories": [
+        {"id": "", "name": "Sem Acessórios", "level": 1},
         {"id": "eyepatch", "name": "Tapa-Olho", "level": 3, "price": 300},
         {"id": "kurt", "name": "Óculos Kurt", "level": 5, "price": 500},
         {"id": "prescription01", "name": "Óculos Grau 1", "level": 1},
