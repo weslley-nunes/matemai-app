@@ -298,8 +298,7 @@ else:
         from utils import mark_today_as_studied
         mark_today_as_studied()
         st.rerun()
-else:
-    st.info("✅ Você já estudou hoje! Continue assim! 🔥")
+
 
 st.markdown("---")
 st.markdown("### 💡 Dicas de Estudo Personalizadas")
