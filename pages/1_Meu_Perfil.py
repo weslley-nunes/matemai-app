@@ -32,16 +32,8 @@ if "avatar_config" not in st.session_state:
         st.session_state.avatar_config = st.session_state.user_profile.get("avatar_config").copy()
     else:
         # Default config
-        st.session_state.avatar_config = {
-            "top": "shortHair",
-            "accessories": "prescription01",
-            "hairColor": "2c1b18", # Black
-            "clothing": "hoodie",
-            "eyes": "happy",
-            "eyebrows": "default",
-            "mouth": "smile",
-            "skinColor": "edb98a" # Light
-        }
+        from utils import get_default_avatar_config
+        st.session_state.avatar_config = get_default_avatar_config()
 
 # Current Level
 user_level = st.session_state.level

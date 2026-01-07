@@ -11,6 +11,21 @@ import base64
 def get_ai_agent():
     return MathAI()
 
+def get_default_avatar_config():
+    """
+    Retorna a configuração padrão do avatar (careca e sorrindo).
+    """
+    return {
+        "top": "noHair",
+        "accessories": "prescription01",
+        "hairColor": "2c1b18", # Black
+        "clothing": "hoodie",
+        "eyes": "happy",
+        "eyebrows": "default",
+        "mouth": "smile",
+        "skinColor": "edb98a" # Light
+    }
+
 def get_img_as_base64(file_path):
     """
     Reads an image file and converts it to a base64 string.
@@ -380,7 +395,7 @@ def load_user_progress(email):
         
         # Ensure avatar config exists
         if not st.session_state.user_profile.get("avatar_config"):
-            st.session_state.user_profile["avatar_config"] = generate_random_avatar_config()
+            st.session_state.user_profile["avatar_config"] = get_default_avatar_config()
             # Save it back to ensure persistence
             db.save_avatar_config(
                 email, 
@@ -607,8 +622,14 @@ def show_sidebar():
         avatar_url = None
         if st.session_state.user_profile and st.session_state.user_profile.get("avatar"):
             avatar_url = st.session_state.user_profile["avatar"]
-        elif os.path.exists("assets/mascot.png"):
-            avatar_url = get_img_as_base64("assets/mascot.png")
+        else:
+             # Fallback to default avatar (bald & smiling)
+             from utils import get_default_avatar_config
+             from avatar_assets import get_avatar_url
+             if not st.session_state.user_profile.get("avatar_config"):
+                 st.session_state.user_profile["avatar_config"] = get_default_avatar_config()
+             
+             avatar_url = get_avatar_url(st.session_state.user_profile["avatar_config"])
 
         # Avatar Display with Hover Effect
         final_avatar_url = avatar_url

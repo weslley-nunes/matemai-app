@@ -61,10 +61,18 @@ class FirestoreDB:
                 user_ref.update(update_data)
             else:
                 # New user: save everything including avatar
+                from utils import get_default_avatar_config
+                from avatar_assets import get_avatar_url
+                
+                # Use default avatar if none provided (or always set default config for consistency)
+                default_config = get_default_avatar_config()
+                default_avatar_url = get_avatar_url(default_config)
+                
                 user_data = {
                     'email': email,
                     'name': name,
-                    'avatar': avatar,
+                    'avatar': default_avatar_url,  # Use our default instead of Google's initial if we want consistency, or keep google's but set config
+                    'avatar_config': default_config, # Save config immediately
                     'created_at': datetime.now(),
                     'last_login': datetime.now()
                 }

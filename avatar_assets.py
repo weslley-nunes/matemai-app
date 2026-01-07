@@ -3,6 +3,7 @@
 AVATAR_ASSETS = {
     "top": [
         {"id": "shortFlat", "name": "Cabelo Curto", "level": 1},
+        {"id": "noHair", "name": "Careca", "level": 1},
         {"id": "longButNotTooLong", "name": "Cabelo Longo", "level": 1},
         {"id": "hat", "name": "Chapéu", "level": 5, "price": 500},
         {"id": "hijab", "name": "Hijab", "level": 1},
@@ -127,6 +128,7 @@ def get_avatar_url(config):
         seed = hashlib.md5(config_str.encode()).hexdigest()
     
     params.append(f"seed={seed}")
+    params.append("accessoriesProbability=100")
     
     for key, value in config.items():
         if value:

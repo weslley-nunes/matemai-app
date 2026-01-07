@@ -124,7 +124,10 @@ for i, (cat_key, cat_name) in enumerate(active_categories.items()):
                 with st.container(border=True):
                     # Preview do Avatar com o Item
                     preview_url = get_item_preview_url(item)
-                    st.image(preview_url, use_container_width=True)
+                    # Centralizar imagem
+                    c_img1, c_img2, c_img3 = st.columns([1, 2, 1])
+                    with c_img2:
+                        st.image(preview_url, width=120)
                     
                     st.markdown(f"**{item['name']}**")
                     
