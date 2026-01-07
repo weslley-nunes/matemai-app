@@ -431,6 +431,9 @@ def load_user_progress(email):
                 st.session_state.user_profile["avatar_config"], 
                 full_url
             )
+        
+        # Auto-mark daily study
+        mark_today_as_studied()
             
         return True
     return False
@@ -603,6 +606,46 @@ def reset_current_user_progress():
                 st.success("Progresso resetado com sucesso!")
                 st.success("Progresso resetado com sucesso!")
                 st.rerun()
+
+def mark_today_as_studied():
+    """
+    Marca o dia de hoje como estudado, atualiza ofensiva e dá XP.
+    Chamado automaticamente no login.
+    """
+    from datetime import datetime, timedelta
+    today = datetime.now()
+    today_str = today.strftime("%Y-%m-%d")
+    
+    if "study_days" not in st.session_state:
+        st.session_state.study_days = {}
+        
+    # Se já marcou hoje, retorna (idempotente)
+    if st.session_state.study_days.get(today_str, False):
+        return
+
+    # Marca hoje
+    st.session_state.study_days[today_str] = True
+    
+    # Update Streak
+    yesterday = today - timedelta(days=1)
+    yesterday_str = yesterday.strftime("%Y-%m-%d")
+    
+    if st.session_state.study_days.get(yesterday_str, False):
+        st.session_state.current_study_streak += 1
+    else:
+        # Se ontem não estudou, verifica se é o primeiro dia ou quebrou
+        # Mas cuidado para não resetar se o usuário logar 2x no mesmo dia (já tratado no if inicial)
+        st.session_state.current_study_streak = 1
+    
+    # XP Bonus
+    streak_bonus = st.session_state.current_study_streak * 10
+    st.session_state.xp += streak_bonus
+    
+    # Save (will happen automatically via save_user_progress if logged in, but ensure here)
+    if st.session_state.get("logged_in"):
+        save_user_progress()
+        st.toast(f"📅 Dia marcado! Ofensiva: {st.session_state.current_study_streak} dias", icon="🔥")
+        st.toast(f"💰 +{streak_bonus} XP de Bônus Diário!", icon="💰")
 
 def activate_double_xp():
     """Ativa o modo XP em dobro por 2 minutos"""

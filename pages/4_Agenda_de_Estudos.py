@@ -289,30 +289,15 @@ st.markdown("---")
 
 st.markdown("### 📚 Marcar Estudo do Dia")
 
-# Mark today as studied button
-if not st.session_state.study_days.get(today_str, False):
-    col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
-    with col_btn2:
-        if st.button("✅ Marcar hoje como estudado", type="primary", use_container_width=True):
-            st.session_state.study_days[today_str] = True
-            
-            # Update streak
-            yesterday = today - timedelta(days=1)
-            yesterday_str = f"{yesterday.year}-{yesterday.month:02d}-{yesterday.day:02d}"
-            
-            if st.session_state.study_days.get(yesterday_str, False):
-                st.session_state.current_study_streak += 1
-            else:
-                st.session_state.current_study_streak = 1
-            
-            # Bonus XP for maintaining streak
-            streak_bonus = st.session_state.current_study_streak * 10
-            st.session_state.xp += streak_bonus
-            
-            st.success(f"🎉 Dia marcado! Ofensiva: {st.session_state.current_study_streak} dias!")
-            st.info(f"🔥 Bônus de ofensiva: +{streak_bonus} XP!")
-            st.balloons()
-            st.rerun()
+# Mark today as studied (Automatic now)
+if st.session_state.study_days.get(today_str, False):
+    st.success(f"✅ Dia marcado automaticamente! Ofensiva: {st.session_state.current_study_streak} dias! 🔥")
+else:
+    # Fallback just in case auto-mark failed (shouldn't happen on login)
+    if st.button("✅ Marcar Presença Manualmente", type="primary"):
+        from utils import mark_today_as_studied
+        mark_today_as_studied()
+        st.rerun()
 else:
     st.info("✅ Você já estudou hoje! Continue assim! 🔥")
 
