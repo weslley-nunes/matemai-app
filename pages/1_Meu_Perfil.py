@@ -126,6 +126,11 @@ with col_preview:
     # Generate URL
     avatar_url = get_avatar_url(st.session_state.avatar_config)
     
+    # DEBUG: Show URL and Config to verify deployment and values
+    st.caption(f"Debug Info (v2.0):")
+    st.code(avatar_url, language="text")
+    # st.json(st.session_state.avatar_config)
+
     # Display Avatar
     st.image(avatar_url, width=250)
     
