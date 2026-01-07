@@ -127,12 +127,18 @@ with col_preview:
     avatar_url = get_avatar_url(st.session_state.avatar_config)
     
     # DEBUG: Show URL and Config to verify deployment and values
-    st.caption(f"Versão 3.0 (Deploy Automático)")
-    # st.code(avatar_url, language="text")
-    # st.json(st.session_state.avatar_config)
+    st.caption(f"Versão 3.1 (Debug Ativo - v2)")
+    st.code(avatar_url, language="text") # Mostra a URL gerada
+
+    # Teste de Conexão Direta (Para descartar erro de rede)
+    st.caption("Teste de Conexão com DiceBear (Deve aparecer um avatar abaixo):")
+    st.image("https://api.dicebear.com/9.x/avataaars/svg?seed=Felix", width=100, caption="Avatar de Teste")
 
     # Display Avatar
-    st.image(avatar_url, width=250)
+    try:
+        st.image(avatar_url, width=250)
+    except Exception as e:
+        st.error(f"Erro ao carregar imagem: {e}")
     
     # Save Button
     if st.button("💾 Salvar Avatar", type="primary", use_container_width=True):
