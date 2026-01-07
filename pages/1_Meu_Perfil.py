@@ -40,11 +40,22 @@ from utils import get_default_avatar_config
 if not st.session_state.avatar_config or not isinstance(st.session_state.avatar_config, dict):
     st.session_state.avatar_config = get_default_avatar_config()
 else:
-    # Ensure all keys exist
+    # Ensure all keys exist AND values are valid assets
     default = get_default_avatar_config()
     for k, v in default.items():
+        # 1. Missing keys
         if k not in st.session_state.avatar_config:
             st.session_state.avatar_config[k] = v
+        
+        # 2. Invalid values (orphan IDs)
+        # Check if the current value exists in AVATAR_ASSETS for this category
+        # If the category exists in assets (some keys like 'mouth' match directly)
+        if k in AVATAR_ASSETS:
+            valid_ids = [item["id"] for item in AVATAR_ASSETS[k]]
+            current_val = st.session_state.avatar_config[k]
+            if current_val not in valid_ids:
+                # Value not found in valid assets (e.g. old deprecated id), reset to default
+                st.session_state.avatar_config[k] = v
 
 # Current Level
 user_level = st.session_state.level
