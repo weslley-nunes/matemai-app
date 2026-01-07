@@ -56,6 +56,11 @@ else:
             if current_val not in valid_ids:
                 # Value not found in valid assets (e.g. old deprecated id), reset to default
                 st.session_state.avatar_config[k] = v
+    
+    # 3. Remove unknown keys (garbage cleanup)
+    keys_to_remove = [k for k in st.session_state.avatar_config.keys() if k not in default]
+    for k in keys_to_remove:
+        del st.session_state.avatar_config[k]
 
 # Current Level
 user_level = st.session_state.level
