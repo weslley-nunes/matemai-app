@@ -104,6 +104,22 @@ AVATAR_ASSETS = {
         {"id": "ae5d29", "name": "Marrom Escuro", "level": 1},
         {"id": "614335", "name": "Negro", "level": 1},
     ]
+    "clotheColor": [
+        {"id": "262e33", "name": "Preto", "level": 1},
+        {"id": "65c9ff", "name": "Azul Claro", "level": 1},
+        {"id": "5199e4", "name": "Azul", "level": 1},
+        {"id": "25557c", "name": "Azul Escuro", "level": 1},
+        {"id": "e6e6e6", "name": "Cinza Claro", "level": 1},
+        {"id": "929598", "name": "Cinza", "level": 1},
+        {"id": "3c4f5c", "name": "Cinza Escuro", "level": 1},
+        {"id": "b1e2ff", "name": "Azul Bebê", "level": 1},
+        {"id": "ffdeb5", "name": "Laranja Pastel", "level": 1},
+        {"id": "ffafb9", "name": "Rosa Pastel", "level": 1},
+        {"id": "ffffb1", "name": "Amarelo Pastel", "level": 1},
+        {"id": "ff488e", "name": "Rosa", "level": 1},
+        {"id": "ff5c5c", "name": "Vermelho", "level": 1},
+        {"id": "ffffff", "name": "Branco", "level": 1},
+    ]
 }
 
 def get_avatar_url(config):
@@ -126,7 +142,14 @@ def get_avatar_url(config):
         seed = hashlib.md5(config_str.encode()).hexdigest()
     
     params.append(f"seed={seed}")
-    params.append("accessoriesProbability=100")
+    
+    # Smart logic for accessories
+    # If accessories key is present and NOT empty, chance is 100%. If empty/missing, chance is 0% to force removal.
+    acc_val = config.get("accessories", "")
+    if acc_val:
+        params.append("accessoriesProbability=100")
+    else:
+        params.append("accessoriesProbability=0")
     
     # Iterate over all config items, excluding special internal keys or reserved URL params
     # This restores flexibility while still filtering empty values
