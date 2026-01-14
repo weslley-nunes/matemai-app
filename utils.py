@@ -684,7 +684,7 @@ def show_sidebar():
         st.page_link("pages/4_Agenda_de_Estudos.py", label="Agenda de Estudos", icon="📅")
         st.page_link("pages/5_Loja_de_XP.py", label="Loja de XP", icon="🛒")
         st.page_link("pages/5_Ranking.py", label="Ranking", icon="🏆")
-        st.page_link("pages/6_Premium.py", label="Premium", icon="💎")
+
         
         # Admin Link
         if st.session_state.user_profile and st.session_state.user_profile.get("email") == "weslley.uca@gmail.com":
