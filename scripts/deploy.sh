@@ -33,8 +33,13 @@ if [ ! -f "/etc/letsencrypt/live/matemai.com.br/fullchain.pem" ]; then
     echo "Certificado SSL não encontrado. Rodando script de configuração..."
     chmod +x scripts/setup_https.sh
     ./scripts/setup_https.sh
-    echo "Certificado SSL já existe. Pulando configuração."
+    echo "Certificado SSL configurado."
+else
+    echo "Certificado SSL já existe. Verificando se precisa de renovação..."
+    # Tenta renovar o certificado. O certbot só renova se estiver próximo da expiração.
+    sudo certbot renew --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx"
 fi
+
 
 # Copiar arquivos estáticos para o webroot (SEO)
 echo "Copiando arquivos estáticos (sitemap, robots)..."
