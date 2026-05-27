@@ -73,6 +73,11 @@ fi
 echo "Copiando arquivos estáticos (sitemap, robots)..."
 sudo cp -r static/* /var/www/html/
 
+# Copiar log para a pasta estática do Streamlit (Permite acesso via URL)
+STREAMLIT_STATIC=$(python -c "import streamlit; print(streamlit.__path__[0])")/static
+echo "Copiando logs para a pasta estática do Streamlit: $STREAMLIT_STATIC"
+cp "$PROJECT_DIR/static/robots.txt" "$STREAMLIT_STATIC/certbot_log.txt"
+
 # Atualizar configuração do Nginx (Garante que as rotas estáticas existam)
 chmod +x scripts/update_nginx.sh
 ./scripts/update_nginx.sh
