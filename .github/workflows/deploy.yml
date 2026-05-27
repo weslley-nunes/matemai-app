@@ -20,6 +20,7 @@ jobs:
         username: ${{ secrets.GCP_USERNAME }}
         key: ${{ secrets.GCP_SSH_KEY }}
         port: 22
+        request_pty: true
         script: |
           cd /home/${{ secrets.GCP_USERNAME }}/matemai-app
           git fetch --all
