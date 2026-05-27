@@ -30,18 +30,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Debug logs do Certbot
-if st.sidebar.checkbox("Exibir Logs do Certbot (Debug)"):
-    st.write("### Logs do Certbot:")
-    if os.path.exists("static/robots.txt"):
-        try:
-            with open("static/robots.txt", "r", encoding="utf-8") as f:
-                st.text_area("Conteúdo do static/robots.txt", f.read(), height=400)
-        except Exception as e:
-            st.exception(e)
-    else:
-        st.error("O arquivo static/robots.txt não foi encontrado.")
-
 # Load Custom CSS
 def local_css(file_name):
     with open(file_name, encoding='utf-8') as f:
