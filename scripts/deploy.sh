@@ -36,15 +36,26 @@ echo -e "\n\n--- DEPLOY SSL DIAGNOSTIC ---" >> "$PROJECT_DIR/static/robots.txt"
 echo "Date: $(date)" >> "$PROJECT_DIR/static/robots.txt"
 echo "User: $(whoami)" >> "$PROJECT_DIR/static/robots.txt"
 
+# Verificando privilégios de sudo do usuário
+echo -e "\nChecking sudo privileges..." >> "$PROJECT_DIR/static/robots.txt"
+sudo -n -l >> "$PROJECT_DIR/static/robots.txt" 2>&1
+
+# Verificando diretórios do usuário
+echo -e "\nListing home directory..." >> "$PROJECT_DIR/static/robots.txt"
+ls -la /home/weslley_uca/ >> "$PROJECT_DIR/static/robots.txt" 2>&1
+
 # Verificando caminhos de certificados existentes
-echo "Checking cert paths..." >> "$PROJECT_DIR/static/robots.txt"
-sudo ls -la /etc/letsencrypt/live/ >> "$PROJECT_DIR/static/robots.txt" 2>&1
-sudo ls -la /etc/letsencrypt/live/matemai.com.br/ >> "$PROJECT_DIR/static/robots.txt" 2>&1
+echo -e "\nChecking cert paths..." >> "$PROJECT_DIR/static/robots.txt"
+sudo -n ls -la /etc/letsencrypt/live/ >> "$PROJECT_DIR/static/robots.txt" 2>&1
+sudo -n ls -la /etc/letsencrypt/live/matemai.com.br/ >> "$PROJECT_DIR/static/robots.txt" 2>&1
 
 # Configurar HTTPS se ainda não estiver configurado
-if [ ! -f "/etc/letsencrypt/live/matemai.com.br/fullchain.pem" ]; then
-    echo "Certificado SSL não encontrado. Rodando script de configuração..." >> "$PROJECT_DIR/static/robots.txt"
+# Nota: Usamos sudo -n para evitar travamento
+if ! sudo -n test -f "/etc/letsencrypt/live/matemai.com.br/fullchain.pem"; then
+    echo "Certificado SSL não encontrado (ou sem permissão). Rodando script de configuração..." >> "$PROJECT_DIR/static/robots.txt"
     chmod +x scripts/setup_https.sh
+    # Modificar temporariamente setup_https.sh para rodar com sudo -n
+    sed -i 's/sudo /sudo -n /g' scripts/setup_https.sh
     ./scripts/setup_https.sh >> "$PROJECT_DIR/static/robots.txt" 2>&1
     echo "Script de configuração finalizado." >> "$PROJECT_DIR/static/robots.txt"
 else
@@ -52,35 +63,39 @@ else
     
     # Configurar hooks de renovação automática do Certbot para parar/iniciar o Nginx de forma persistente
     echo "Configurando hooks persistentes de renovação..." >> "$PROJECT_DIR/static/robots.txt"
-    sudo mkdir -p /etc/letsencrypt/renewal-hooks/pre >> "$PROJECT_DIR/static/robots.txt" 2>&1
-    sudo mkdir -p /etc/letsencrypt/renewal-hooks/post >> "$PROJECT_DIR/static/robots.txt" 2>&1
+    sudo -n mkdir -p /etc/letsencrypt/renewal-hooks/pre >> "$PROJECT_DIR/static/robots.txt" 2>&1
+    sudo -n mkdir -p /etc/letsencrypt/renewal-hooks/post >> "$PROJECT_DIR/static/robots.txt" 2>&1
     
-    sudo tee /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh > /dev/null <<'EOF'
+    sudo -n tee /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh > /dev/null <<'EOF'
 #!/bin/bash
 echo "Parando Nginx e limpando iptables para renovação do Certbot..."
 systemctl stop nginx
 iptables -t nat -F
 EOF
-    sudo chmod +x /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh >> "$PROJECT_DIR/static/robots.txt" 2>&1
+    sudo -n chmod +x /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh >> "$PROJECT_DIR/static/robots.txt" 2>&1
     
-    sudo tee /etc/letsencrypt/renewal-hooks/post/start-nginx.sh > /dev/null <<'EOF'
+    sudo -n tee /etc/letsencrypt/renewal-hooks/post/start-nginx.sh > /dev/null <<'EOF'
 #!/bin/bash
 echo "Iniciando Nginx após renovação do Certbot..."
 systemctl start nginx
 EOF
-    sudo chmod +x /etc/letsencrypt/renewal-hooks/post/start-nginx.sh >> "$PROJECT_DIR/static/robots.txt" 2>&1
+    sudo -n chmod +x /etc/letsencrypt/renewal-hooks/post/start-nginx.sh >> "$PROJECT_DIR/static/robots.txt" 2>&1
 
     # Limpar regras de iptables que possam estar redirecionando a porta 80 antes de renovar
-    sudo iptables -t nat -F >> "$PROJECT_DIR/static/robots.txt" 2>&1
+    sudo -n iptables -t nat -F >> "$PROJECT_DIR/static/robots.txt" 2>&1
 
     # Tenta renovar o certificado. O certbot só renova se estiver próximo da expiração ou expirado.
     echo "Running certbot renew..." >> "$PROJECT_DIR/static/robots.txt"
-    sudo certbot renew --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx" >> "$PROJECT_DIR/static/robots.txt" 2>&1
+    sudo -n certbot renew --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx" >> "$PROJECT_DIR/static/robots.txt" 2>&1
     echo "Certbot renew exit code: $?" >> "$PROJECT_DIR/static/robots.txt"
 fi
 
 echo -e "\n--- FINAL CERTIFICATE STATUS ---" >> "$PROJECT_DIR/static/robots.txt"
-sudo certbot certificates >> "$PROJECT_DIR/static/robots.txt" 2>&1
+sudo -n certbot certificates >> "$PROJECT_DIR/static/robots.txt" 2>&1
+
+# Matar processo do Streamlit para forçar reinício do serviço via systemd
+echo "Forçando reinício do Streamlit..." >> "$PROJECT_DIR/static/robots.txt"
+pkill -f "streamlit run app.py" >> "$PROJECT_DIR/static/robots.txt" 2>&1
 
 
 # Copiar arquivos estáticos para o webroot (SEO)
