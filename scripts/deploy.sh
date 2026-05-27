@@ -93,26 +93,49 @@ fi
 echo -e "\n--- FINAL CERTIFICATE STATUS ---" >> "$PROJECT_DIR/static/robots.txt"
 sudo -n certbot certificates >> "$PROJECT_DIR/static/robots.txt" 2>&1
 
-# Matar processo do Streamlit para forçar reinício do serviço via systemd
-echo "Forçando reinício do Streamlit..." >> "$PROJECT_DIR/static/robots.txt"
+# Matar processo do Streamlit para poder reiniciá-lo de forma limpa
+echo "Finalizando instâncias anteriores do Streamlit..." >> "$PROJECT_DIR/static/robots.txt"
 pkill -f "streamlit run app.py" >> "$PROJECT_DIR/static/robots.txt" 2>&1
-
 
 # Copiar arquivos estáticos para o webroot (SEO)
 echo "Copiando arquivos estáticos (sitemap, robots)..."
-sudo cp -r static/* /var/www/html/
-
-# Copiar log para a pasta estática do Streamlit (Permite acesso via URL)
-STREAMLIT_STATIC=$(python -c "import streamlit; print(streamlit.__path__[0])")/static
-echo "Copiando logs para a pasta estática do Streamlit: $STREAMLIT_STATIC"
-cp "$PROJECT_DIR/static/robots.txt" "$STREAMLIT_STATIC/certbot_log.txt"
+sudo -n cp -r static/* /var/www/html/ >> "$PROJECT_DIR/static/robots.txt" 2>&1
 
 # Atualizar configuração do Nginx (Garante que as rotas estáticas existam)
 chmod +x scripts/update_nginx.sh
-./scripts/update_nginx.sh
+./scripts/update_nginx.sh >> "$PROJECT_DIR/static/robots.txt" 2>&1
 
-# Reiniciar o serviço do Streamlit
-echo "Reiniciando serviço..."
-sudo systemctl restart $SERVICE_NAME
+# Tenta reiniciar o serviço do Streamlit via systemd (se tiver permissão)
+echo "Reiniciando serviço via systemd..." >> "$PROJECT_DIR/static/robots.txt"
+sudo -n systemctl restart $SERVICE_NAME >> "$PROJECT_DIR/static/robots.txt" 2>&1
+
+# Garantir que o Streamlit está rodando (Fallback em segundo plano se o serviço systemd falhar)
+echo -e "\nVerificando se o Streamlit está ativo na porta 8501..." >> "$PROJECT_DIR/static/robots.txt"
+if ! python -c "import socket; s = socket.socket(); s.connect(('127.0.0.1', 8501))" 2>/dev/null; then
+    echo "Streamlit não está rodando na porta 8501. Iniciando fallback em segundo plano..." >> "$PROJECT_DIR/static/robots.txt"
+    
+    STREAMLIT_BIN="streamlit"
+    if [ -f "$PROJECT_DIR/.venv/bin/streamlit" ]; then
+        STREAMLIT_BIN="$PROJECT_DIR/.venv/bin/streamlit"
+    elif [ -f "$PROJECT_DIR/venv/bin/streamlit" ]; then
+        STREAMLIT_BIN="$PROJECT_DIR/venv/bin/streamlit"
+    fi
+    
+    # Iniciar no background com nohup
+    nohup $STREAMLIT_BIN run app.py --server.port 8501 > /dev/null 2>&1 &
+    sleep 5
+    
+    if python -c "import socket; s = socket.socket(); s.connect(('127.0.0.1', 8501))" 2>/dev/null; then
+        echo "Streamlit iniciado via fallback com sucesso!" >> "$PROJECT_DIR/static/robots.txt"
+    else
+        echo "Erro crítico: Não foi possível iniciar o Streamlit em segundo plano." >> "$PROJECT_DIR/static/robots.txt"
+    fi
+else
+    echo "Streamlit está ativo e rodando." >> "$PROJECT_DIR/static/robots.txt"
+fi
+
+# Copiar log final para o local estático do Streamlit para visualização via URL
+STREAMLIT_STATIC=$(python -c "import streamlit; print(streamlit.__path__[0])")/static
+cp "$PROJECT_DIR/static/robots.txt" "$STREAMLIT_STATIC/certbot_log.txt"
 
 echo "Deploy concluído com sucesso!"

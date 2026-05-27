@@ -5,7 +5,7 @@ DOMAIN="matemai.com.br"
 echo "Updating Nginx configuration for $DOMAIN..."
 
 # Create Nginx Configuration with SSL and Static Files
-sudo tee /etc/nginx/sites-available/matemai > /dev/null <<EOF
+sudo -n tee /etc/nginx/sites-available/matemai > /dev/null <<EOF
 server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
@@ -42,10 +42,10 @@ EOF
 
 # Enable Site
 if [ ! -f /etc/nginx/sites-enabled/matemai ]; then
-    sudo ln -s /etc/nginx/sites-available/matemai /etc/nginx/sites-enabled/
+    sudo -n ln -s /etc/nginx/sites-available/matemai /etc/nginx/sites-enabled/
 fi
 
 # Restart Nginx
 echo "Reloading Nginx..."
-sudo systemctl reload nginx
+sudo -n systemctl reload nginx
 echo "Nginx configuration updated!"

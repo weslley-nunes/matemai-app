@@ -8,44 +8,44 @@ echo "Configuring HTTPS for $DOMAIN..."
 
 # 1. Install Nginx and Certbot (if not already installed)
 echo "Ensuring Nginx and Certbot are installed..."
-sudo apt-get update
-sudo apt-get install -y nginx certbot python3-certbot-nginx
+sudo -n apt-get update
+sudo -n apt-get install -y nginx certbot python3-certbot-nginx
 
 # 2. Stop Nginx to free up port 80 for Certbot Standalone
 echo "Stopping Nginx..."
-sudo systemctl stop nginx
+sudo -n systemctl stop nginx
 
 # 3. Clear iptables redirects that might hijack port 80 (CRITICAL FIX)
 echo "Clearing iptables NAT rules..."
-sudo iptables -t nat -F
+sudo -n iptables -t nat -F
 
 # Configurar hooks de renovação automática do Certbot para parar/iniciar o Nginx de forma persistente
 echo "Configurando hooks persistentes de renovação..."
-sudo mkdir -p /etc/letsencrypt/renewal-hooks/pre
-sudo mkdir -p /etc/letsencrypt/renewal-hooks/post
+sudo -n mkdir -p /etc/letsencrypt/renewal-hooks/pre
+sudo -n mkdir -p /etc/letsencrypt/renewal-hooks/post
 
-sudo tee /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh > /dev/null <<'EOF'
+sudo -n tee /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh > /dev/null <<'EOF'
 #!/bin/bash
 echo "Parando Nginx e limpando iptables para renovação do Certbot..."
 systemctl stop nginx
 iptables -t nat -F
 EOF
-sudo chmod +x /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh
+sudo -n chmod +x /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh
 
-sudo tee /etc/letsencrypt/renewal-hooks/post/start-nginx.sh > /dev/null <<'EOF'
+sudo -n tee /etc/letsencrypt/renewal-hooks/post/start-nginx.sh > /dev/null <<'EOF'
 #!/bin/bash
 echo "Iniciando Nginx após renovação do Certbot..."
 systemctl start nginx
 EOF
-sudo chmod +x /etc/letsencrypt/renewal-hooks/post/start-nginx.sh
+sudo -n chmod +x /etc/letsencrypt/renewal-hooks/post/start-nginx.sh
 
 # 4. Obtain Certificate (Standalone Mode)
 echo "Obtaining SSL Certificate..."
-sudo certbot certonly --standalone -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email $EMAIL
+sudo -n certbot certonly --standalone -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email $EMAIL
 
 # 4. Create Nginx Configuration with SSL
 echo "Creating Nginx configuration..."
-sudo tee /etc/nginx/sites-available/matemai > /dev/null <<EOF
+sudo -n tee /etc/nginx/sites-available/matemai > /dev/null <<EOF
 server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
@@ -74,15 +74,15 @@ EOF
 # 5. Enable Site
 echo "Enabling site..."
 if [ -f /etc/nginx/sites-enabled/default ]; then
-    sudo rm /etc/nginx/sites-enabled/default
+    sudo -n rm /etc/nginx/sites-enabled/default
 fi
 
 if [ ! -f /etc/nginx/sites-enabled/matemai ]; then
-    sudo ln -s /etc/nginx/sites-available/matemai /etc/nginx/sites-enabled/
+    sudo -n ln -s /etc/nginx/sites-available/matemai /etc/nginx/sites-enabled/
 fi
 
 # 6. Restart Nginx
 echo "Starting Nginx..."
-sudo systemctl start nginx
+sudo -n systemctl start nginx
 
 echo "HTTPS Configuration Complete!"
