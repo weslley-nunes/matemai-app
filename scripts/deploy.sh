@@ -36,6 +36,30 @@ if [ ! -f "/etc/letsencrypt/live/matemai.com.br/fullchain.pem" ]; then
     echo "Certificado SSL configurado."
 else
     echo "Certificado SSL já existe. Verificando se precisa de renovação..."
+    
+    # Configurar hooks de renovação automática do Certbot para parar/iniciar o Nginx de forma persistente
+    echo "Configurando hooks persistentes de renovação..."
+    sudo mkdir -p /etc/letsencrypt/renewal-hooks/pre
+    sudo mkdir -p /etc/letsencrypt/renewal-hooks/post
+    
+    sudo tee /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh > /dev/null <<'EOF'
+#!/bin/bash
+echo "Parando Nginx e limpando iptables para renovação do Certbot..."
+systemctl stop nginx
+iptables -t nat -F
+EOF
+    sudo chmod +x /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh
+    
+    sudo tee /etc/letsencrypt/renewal-hooks/post/start-nginx.sh > /dev/null <<'EOF'
+#!/bin/bash
+echo "Iniciando Nginx após renovação do Certbot..."
+systemctl start nginx
+EOF
+    sudo chmod +x /etc/letsencrypt/renewal-hooks/post/start-nginx.sh
+
+    # Limpar regras de iptables que possam estar redirecionando a porta 80 antes de renovar
+    sudo iptables -t nat -F
+
     # Tenta renovar o certificado. O certbot só renova se estiver próximo da expiração.
     sudo certbot renew --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx"
 fi

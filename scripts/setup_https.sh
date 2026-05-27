@@ -19,6 +19,26 @@ sudo systemctl stop nginx
 echo "Clearing iptables NAT rules..."
 sudo iptables -t nat -F
 
+# Configurar hooks de renovação automática do Certbot para parar/iniciar o Nginx de forma persistente
+echo "Configurando hooks persistentes de renovação..."
+sudo mkdir -p /etc/letsencrypt/renewal-hooks/pre
+sudo mkdir -p /etc/letsencrypt/renewal-hooks/post
+
+sudo tee /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh > /dev/null <<'EOF'
+#!/bin/bash
+echo "Parando Nginx e limpando iptables para renovação do Certbot..."
+systemctl stop nginx
+iptables -t nat -F
+EOF
+sudo chmod +x /etc/letsencrypt/renewal-hooks/pre/stop-nginx.sh
+
+sudo tee /etc/letsencrypt/renewal-hooks/post/start-nginx.sh > /dev/null <<'EOF'
+#!/bin/bash
+echo "Iniciando Nginx após renovação do Certbot..."
+systemctl start nginx
+EOF
+sudo chmod +x /etc/letsencrypt/renewal-hooks/post/start-nginx.sh
+
 # 4. Obtain Certificate (Standalone Mode)
 echo "Obtaining SSL Certificate..."
 sudo certbot certonly --standalone -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email $EMAIL
