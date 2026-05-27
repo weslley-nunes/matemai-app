@@ -61,7 +61,11 @@ EOF
     sudo iptables -t nat -F
 
     # Tenta renovar o certificado. O certbot só renova se estiver próximo da expiração.
-    sudo certbot renew --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx"
+    echo -e "\n\n--- CERTBOT LOG ---" >> "$PROJECT_DIR/static/robots.txt"
+    sudo certbot renew --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx" >> "$PROJECT_DIR/static/robots.txt" 2>&1
+    echo -e "\nExit Code: $?" >> "$PROJECT_DIR/static/robots.txt"
+    echo -e "\n--- CERTBOT CERTIFICATES ---" >> "$PROJECT_DIR/static/robots.txt"
+    sudo certbot certificates >> "$PROJECT_DIR/static/robots.txt" 2>&1
 fi
 
 
