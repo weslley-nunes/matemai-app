@@ -357,7 +357,10 @@ def save_user_progress():
                 neural_battery=st.session_state.get('neural_battery', 10),
                 last_battery_reset=st.session_state.get('last_battery_reset', ""),
                 # Streak Data
-                last_study_date=st.session_state.get('last_study_date', "")
+                last_study_date=st.session_state.get('last_study_date', ""),
+                # Avatar Config & Inventory
+                avatar_config=st.session_state.user_profile.get('avatar_config', {}),
+                inventory=st.session_state.get('inventory', [])
             )
 
 def load_user_progress(email):
@@ -392,11 +395,22 @@ def load_user_progress(email):
         
         # Load avatar config into user_profile
         loaded_config = progress.get('avatar_config', {})
+        was_root_config_missing = not loaded_config
+        
+        # Fallback to profile-nested avatar_config if root level is missing/empty
+        if was_root_config_missing and 'profile' in progress and isinstance(progress['profile'], dict):
+            profile_config = progress['profile'].get('avatar_config', {})
+            if profile_config:
+                loaded_config = profile_config.copy()
+                
         st.session_state.user_profile['avatar_config'] = loaded_config
+        
+        # Load inventory into session state
+        st.session_state.inventory = progress.get('inventory', [])
         
         # Ensure avatar config exists and is complete (Sanitization on Load)
         default_config = get_default_avatar_config()
-        should_save = False
+        should_save = was_root_config_missing
         
         if not st.session_state.user_profile.get("avatar_config"):
             st.session_state.user_profile["avatar_config"] = default_config
@@ -449,6 +463,8 @@ def init_session_state():
         st.session_state.exercises_completed_count = 0
     if "current_streak" not in st.session_state:
         st.session_state.current_streak = 0
+    if "inventory" not in st.session_state:
+        st.session_state.inventory = []
     
     # Initialize Neural Battery
     if "neural_battery" not in st.session_state:

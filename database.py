@@ -117,7 +117,9 @@ class FirestoreDB:
                 'last_battery_reset': kwargs.get('last_battery_reset', datetime.now().strftime("%Y-%m-%d")),
                 'updated_at': datetime.now(),
                 # Inventory
-                'inventory': kwargs.get('inventory', [])
+                'inventory': kwargs.get('inventory', []),
+                # Avatar Config
+                'avatar_config': kwargs.get('avatar_config', {})
             })
             return True
         except Exception as e:
