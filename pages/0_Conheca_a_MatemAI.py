@@ -10,7 +10,7 @@ st.set_page_config(
 )
 
 # Inicialização
-setup_app()
+setup_app(requires_profile=False)
 show_sidebar()
 
 # Título Principal

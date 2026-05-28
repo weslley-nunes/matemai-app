@@ -4,10 +4,14 @@ from avatar_assets import AVATAR_ASSETS, get_avatar_url
 from database import get_database
 
 # Initialize Session State
-setup_app()
+setup_app(requires_profile=False)
 show_sidebar()
 
 st.title("👤 Meu Perfil")
+
+if "profile_redirect_reason" in st.session_state:
+    st.warning(st.session_state.profile_redirect_reason)
+    del st.session_state.profile_redirect_reason
 
 if not st.session_state.user_profile:
     st.warning("Por favor, faça login na página inicial para acessar seu perfil.")

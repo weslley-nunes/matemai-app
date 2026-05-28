@@ -491,7 +491,7 @@ def get_battery_status():
         return 999, 999 # Infinite symbol representation logic can be handled in UI
     return st.session_state.neural_battery, 10
 
-def setup_app(is_public_page=False):
+def setup_app(is_public_page=False, requires_profile=True):
     """
     Configuração global da aplicação.
     Deve ser chamada no início de todas as páginas.
@@ -513,6 +513,16 @@ def setup_app(is_public_page=False):
     if not is_public_page and not st.session_state.get("logged_in"):
         st.warning("🔒 Por favor, faça login para continuar.")
         st.switch_page("app.py")
+        st.stop()
+
+    # Enforce Profile Creation/Completeness
+    if not is_public_page and requires_profile:
+        profile = st.session_state.get("user_profile")
+        if not profile or not profile.get("methodology"):
+            st.warning("⚠️ Por favor, complete a criação do seu perfil antes de acessar as missões e desafios!")
+            st.session_state.profile_redirect_reason = "Para acessar as missões e desafios gamificados, precisamos primeiro conhecer seu estilo de aprendizado e série escolar."
+            st.switch_page("pages/1_Meu_Perfil.py")
+            st.stop()
         
     # Check for Claimable Rewards (Global Notification)
     if st.session_state.get("logged_in") and not is_public_page:
