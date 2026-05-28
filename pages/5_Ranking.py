@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 from database import get_database
-from utils import setup_app, show_sidebar, generate_nickname
+from utils import setup_app, show_sidebar, generate_nickname, render_avatar
 
 # Setup
 setup_app()
@@ -56,7 +56,7 @@ else:
             st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
             st.markdown("🥈 **2º Lugar**")
             if leaderboard[1]['avatar']:
-                st.image(leaderboard[1]['avatar'], width=80)
+                render_avatar(leaderboard[1]['avatar'], width=80)
             st.markdown(f"**{leaderboard[1]['name']}**")
             st.markdown(f"*{leaderboard[1]['xp']} XP*")
             st.markdown("</div>", unsafe_allow_html=True)
@@ -66,7 +66,7 @@ else:
             st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
             st.markdown("🥇 **CAMPEÃO**")
             if leaderboard[0]['avatar']:
-                st.image(leaderboard[0]['avatar'], width=100)
+                render_avatar(leaderboard[0]['avatar'], width=100)
             st.markdown(f"### {leaderboard[0]['name']}")
             st.markdown(f"**{leaderboard[0]['xp']} XP**")
             st.markdown("</div>", unsafe_allow_html=True)
@@ -76,7 +76,7 @@ else:
             st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
             st.markdown("🥉 **3º Lugar**")
             if leaderboard[2]['avatar']:
-                st.image(leaderboard[2]['avatar'], width=80)
+                render_avatar(leaderboard[2]['avatar'], width=80)
             st.markdown(f"**{leaderboard[2]['name']}**")
             st.markdown(f"*{leaderboard[2]['xp']} XP*")
             st.markdown("</div>", unsafe_allow_html=True)
@@ -137,7 +137,7 @@ else:
         with r_col2:
             if user['avatar']:
                 # Use a small width for table avatar
-                st.image(user['avatar'], width=40)
+                render_avatar(user['avatar'], width=40, centered=False)
             else:
                 st.write("👤")
         

@@ -491,6 +491,22 @@ def get_battery_status():
         return 999, 999 # Infinite symbol representation logic can be handled in UI
     return st.session_state.neural_battery, 10
 
+def render_avatar(avatar_url, width=100, centered=True):
+    """
+    Renders an avatar image safely using HTML to prevent server-side download issues in Streamlit.
+    """
+    if not avatar_url:
+        return
+        
+    style = "border-radius: 50%;"
+    if centered:
+        style += " display: block; margin: 0 auto;"
+        
+    st.markdown(
+        f'<div style="text-align: {"center" if centered else "left"};"><img src="{avatar_url}" width="{width}" style="{style}"></div>', 
+        unsafe_allow_html=True
+    )
+
 def setup_app(is_public_page=False, requires_profile=True):
     """
     Configuração global da aplicação.

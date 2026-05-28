@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import setup_app, show_sidebar, save_user_progress
+from utils import setup_app, show_sidebar, save_user_progress, render_avatar
 from avatar_assets import get_shop_items, get_avatar_url
 from database import get_database
 import time
@@ -127,7 +127,7 @@ for i, (cat_key, cat_name) in enumerate(active_categories.items()):
                     # Centralizar imagem
                     c_img1, c_img2, c_img3 = st.columns([1, 2, 1])
                     with c_img2:
-                        st.image(preview_url, width=120)
+                        render_avatar(preview_url, width=120)
                     
                     st.markdown(f"**{item['name']}**")
                     

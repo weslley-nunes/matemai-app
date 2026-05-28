@@ -278,14 +278,23 @@ class FirestoreDB:
             return False
             
         try:
-            # Atualizar URL do avatar no perfil do usuário
-            self.db.collection('users').document(email).update({'avatar': avatar_url})
+            # Atualizar URL do avatar no perfil do usuário (garantindo merge=True se criar)
+            self.db.collection('users').document(email).set({'avatar': avatar_url}, merge=True)
             
-            # Salvar configuração detalhada no progresso
-            self.db.collection('progress').document(email).update({
-                'avatar_config': avatar_config,
-                'profile_data.avatar': avatar_url # Update nested profile data too
-            })
+            # Salvar configuração detalhada no progresso (verificando se o documento existe)
+            progress_ref = self.db.collection('progress').document(email)
+            if progress_ref.get().exists:
+                progress_ref.update({
+                    'avatar_config': avatar_config,
+                    'profile_data.avatar': avatar_url # Update nested profile data too
+                })
+            else:
+                progress_ref.set({
+                    'avatar_config': avatar_config,
+                    'profile_data': {
+                        'avatar': avatar_url
+                    }
+                }, merge=True)
             return True
         except Exception as e:
             st.error(f"Erro ao salvar avatar: {e}")

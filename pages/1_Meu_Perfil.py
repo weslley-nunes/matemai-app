@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import get_ai_methodology, setup_app, show_sidebar
+from utils import get_ai_methodology, setup_app, show_sidebar, render_avatar
 from avatar_assets import AVATAR_ASSETS, get_avatar_url
 from database import get_database
 
@@ -136,7 +136,7 @@ with col_preview:
         # Center the image using columns
         c_spacer1, c_img, c_spacer2 = st.columns([1, 4, 1])
         with c_img:
-            st.image(avatar_url, width=250)
+            render_avatar(avatar_url, width=250)
     except Exception as e:
         st.error(f"Erro ao carregar imagem: {e}")
     
