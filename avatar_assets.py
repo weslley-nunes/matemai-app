@@ -124,43 +124,150 @@ AVATAR_ASSETS = {
 
 def get_avatar_url(config):
     """
-    Gera a URL do DiceBear com base na configuração.
+    Gera a URL local (Data URI com SVG base64) do Avatar usando a biblioteca python-avatars localmente.
+    Isso funciona 100% offline e resolve bloqueios de rede.
     """
-    base_url = "https://api.dicebear.com/9.x/avataaars/svg"
-    params = []
-    
-    # Use a seed based on the configuration to ensure consistency
-    # If config is empty, use a random seed or a default one
-    import json
-    import hashlib
-    
+    import base64
+    import python_avatars as pa
+
+    # Se a config estiver vazia, carrega a padrão
     if not config:
-        seed = "Felix" # Default seed
-    else:
-        # Create a deterministic seed from the config
-        config_str = json.dumps(config, sort_keys=True)
-        seed = hashlib.md5(config_str.encode()).hexdigest()
-    
-    params.append(f"seed={seed}")
-    
-    # Smart logic for accessories
-    # If accessories key is present and NOT empty, chance is 100%. If empty/missing, chance is 0% to force removal.
-    acc_val = config.get("accessories", "")
-    if acc_val:
-        params.append("accessoriesProbability=100")
-    else:
-        params.append("accessoriesProbability=0")
-    
-    # Iterate over all config items, excluding special internal keys or reserved URL params
-    # This restores flexibility while still filtering empty values
-    for key, value in config.items():
-        if key in ["seed"]: # seed is handled separately
-            continue
-        if value:
-            # Basic validation: ensure key is alphanumeric to prevent injection, though less critical here
-            params.append(f"{key}={value}")
-            
-    return f"{base_url}?{'&'.join(params)}"
+        from utils import get_default_avatar_config
+        config = get_default_avatar_config()
+
+    # Mapeamentos para python-avatars enums
+    top_mapping = {
+        "shortFlat": pa.HairType.SHORT_FLAT,
+        "longButNotTooLong": pa.HairType.LONG_NOT_TOO_LONG,
+        "hat": pa.HatType.HAT,
+        "hijab": pa.HatType.HIJAB,
+        "turban": pa.HatType.TURBAN,
+        "winterHat1": pa.HatType.WINTER_HAT_1,
+        "winterHat02": pa.HatType.WINTER_HAT_2,
+        "bob": pa.HairType.BOB,
+        "bun": pa.HairType.BUN,
+        "curly": pa.HairType.CURLY,
+        "curvy": pa.HairType.CURVY,
+        "dreads": pa.HairType.DREADS,
+        "frida": pa.HairType.FRIDA,
+        "fro": pa.HairType.FRO,
+        "froBand": pa.HairType.FRO_BAND,
+        "miaWallace": pa.HairType.MIA_WALLACE,
+        "shavedSides": pa.HairType.SHAVED_SIDES,
+        "straight01": pa.HairType.STRAIGHT_1,
+        "straight02": pa.HairType.STRAIGHT_2,
+        "theCaesar": pa.HairType.CAESAR,
+    }
+
+    accessory_mapping = {
+        "": pa.AccessoryType.NONE,
+        "eyepatch": pa.AccessoryType.EYEPATCH,
+        "kurt": pa.AccessoryType.KURT,
+        "prescription01": pa.AccessoryType.PRESCRIPTION_1,
+        "prescription02": pa.AccessoryType.PRESCRIPTION_2,
+        "round": pa.AccessoryType.ROUND,
+        "sunglasses": pa.AccessoryType.SUNGLASSES,
+        "wayfarers": pa.AccessoryType.WAYFARERS,
+    }
+
+    clothing_mapping = {
+        "blazerAndShirt": pa.ClothingType.BLAZER_SHIRT,
+        "blazerAndSweater": pa.ClothingType.BLAZER_SWEATER,
+        "collarAndSweater": pa.ClothingType.COLLAR_SWEATER,
+        "graphicShirt": pa.ClothingType.GRAPHIC_SHIRT,
+        "hoodie": pa.ClothingType.HOODIE,
+        "overall": pa.ClothingType.OVERALL,
+        "shirtCrewNeck": pa.ClothingType.SHIRT_CREW_NECK,
+        "shirtScoopNeck": pa.ClothingType.SHIRT_SCOOP_NECK,
+        "shirtVNeck": pa.ClothingType.SHIRT_V_NECK,
+    }
+
+    eyes_mapping = {
+        "cry": pa.EyeType.CRY,
+        "default": pa.EyeType.DEFAULT,
+        "eyeRoll": pa.EyeType.EYE_ROLL,
+        "happy": pa.EyeType.HAPPY,
+        "hearts": pa.EyeType.HEART,
+        "side": pa.EyeType.SIDE,
+        "squint": pa.EyeType.SQUINT,
+        "surprised": pa.EyeType.SURPRISED,
+        "wink": pa.EyeType.WINK,
+        "winkWacky": pa.EyeType.WINK_WACKY,
+    }
+
+    eyebrows_mapping = {
+        "angry": pa.EyebrowType.ANGRY,
+        "angryNatural": pa.EyebrowType.ANGRY_NATURAL,
+        "default": pa.EyebrowType.DEFAULT,
+        "defaultNatural": pa.EyebrowType.DEFAULT_NATURAL,
+        "flatNatural": pa.EyebrowType.FLAT_NATURAL,
+        "raisedExcited": pa.EyebrowType.RAISED_EXCITED,
+        "sadConcerned": pa.EyebrowType.SAD_CONCERNED,
+        "sadConcernedNatural": pa.EyebrowType.SAD_CONCERNED_NATURAL,
+        "unibrowNatural": pa.EyebrowType.UNIBROW_NATURAL,
+        "upDown": pa.EyebrowType.UP_DOWN,
+        "upDownNatural": pa.EyebrowType.UP_DOWN_NATURAL,
+    }
+
+    mouth_mapping = {
+        "concerned": pa.MouthType.CONCERNED,
+        "default": pa.MouthType.DEFAULT,
+        "disbelief": pa.MouthType.DISBELIEF,
+        "eating": pa.MouthType.EATING,
+        "grimace": pa.MouthType.GRIMACE,
+        "sad": pa.MouthType.SAD,
+        "screamOpen": pa.MouthType.SCREAM_OPEN,
+        "serious": pa.MouthType.SERIOUS,
+        "smile": pa.MouthType.SMILE,
+        "tongue": pa.MouthType.TONGUE,
+        "twinkle": pa.MouthType.TWINKLE,
+        "vomit": pa.MouthType.VOMIT,
+    }
+
+    try:
+        # Extrair e formatar cores (como strings hex com prefixo '#')
+        skin_color_raw = config.get("skinColor", "edb98a")
+        skin_color = f"#{skin_color_raw.upper()}" if skin_color_raw else "#EDB98A"
+        
+        hair_color_raw = config.get("hairColor", "2c1b18")
+        hair_color = f"#{hair_color_raw.upper()}" if hair_color_raw else "#2C1B18"
+        
+        clothes_color_raw = config.get("clothesColor", "3c4f5c")
+        clothes_color = f"#{clothes_color_raw.upper()}" if clothes_color_raw else "#3C4F5C"
+        
+        # Extrair e mapear partes do corpo/estilo
+        top = top_mapping.get(config.get("top"), pa.HairType.SHORT_FLAT)
+        accessory = accessory_mapping.get(config.get("accessories", ""), pa.AccessoryType.NONE)
+        clothing = clothing_mapping.get(config.get("clothing"), pa.ClothingType.HOODIE)
+        eyes = eyes_mapping.get(config.get("eyes"), pa.EyeType.HAPPY)
+        eyebrows = eyebrows_mapping.get(config.get("eyebrows"), pa.EyebrowType.DEFAULT)
+        mouth = mouth_mapping.get(config.get("mouth"), pa.MouthType.SMILE)
+        
+        # Instanciar e renderizar o avatar locally
+        avatar = pa.Avatar(
+            style=pa.AvatarStyle.TRANSPARENT,
+            top=top,
+            skin_color=skin_color,
+            hair_color=hair_color,
+            clothing=clothing,
+            clothing_color=clothes_color,
+            eyes=eyes,
+            eyebrows=eyebrows,
+            mouth=mouth,
+            accessory=accessory
+        )
+        
+        svg_content = avatar.render()
+        
+        # Encode as Base64 Data URI
+        b64_svg = base64.b64encode(svg_content.encode('utf-8')).decode('utf-8')
+        return f"data:image/svg+xml;base64,{b64_svg}"
+        
+    except Exception as e:
+        # Fallback silencioso (em caso de erro, retorna uma string vazia)
+        import sys
+        print(f"Erro local_avatar: {e}", file=sys.stderr)
+        return ""
 
 def generate_random_avatar_config():
     """
