@@ -4,6 +4,10 @@ import google_auth_oauthlib.flow
 from googleapiclient.discovery import build
 import os
 import time
+from dotenv import load_dotenv
+
+# Carregar variáveis de ambiente do .env
+load_dotenv()
 
 # Configuration
 # Ensure you have client_secret.json in the root directory
