@@ -14,6 +14,47 @@ st.set_page_config(
 # Constantes
 ADMIN_EMAIL = "weslley.uca@gmail.com"
 
+RECOMMENDED_SKILLS = {
+    "1º ano": [
+        {"habilidade": "EF01MA01", "habilidade_texto": "Utilizar números naturais como indicador de quantidade ou de ordem em diferentes situações cotidianas.", "competencia": "Competência Geral 1"},
+        {"habilidade": "EF01MA04", "habilidade_texto": "Contar de maneira exata ou aproximada, de dez em dez e de cem em cem, agrupando objetos de diversas formas.", "competencia": "Competência Geral 2"}
+    ],
+    "2º ano": [
+        {"habilidade": "EF02MA01", "habilidade_texto": "Comparar e ordenar números naturais pela compreensão de características do sistema de numeração decimal.", "competencia": "Competência Geral 1"},
+        {"habilidade": "EF02MA09", "habilidade_texto": "Construir sequências de números naturais em ordem crescente ou decrescente a partir de um número dado.", "competencia": "Competência Geral 3"}
+    ],
+    "3º ano": [
+        {"habilidade": "EF03MA01", "habilidade_texto": "Ler, escrever e comparar números naturais de até quatro ordens, com base na compreensão do sistema decimal.", "competencia": "Competência Geral 1"},
+        {"habilidade": "EF03MA05", "habilidade_texto": "Utilizar diferentes procedimentos de cálculo mental e escrito para resolver problemas de adição e subtração.", "competencia": "Competência Geral 2"}
+    ],
+    "4º ano": [
+        {"habilidade": "EF04MA01", "habilidade_texto": "Ler, escrever e ordenar números naturais até a ordem das dezenas de milhar.", "competencia": "Competência Geral 1"},
+        {"habilidade": "EF04MA05", "habilidade_texto": "Utilizar as propriedades das operações para desenvolver estratégias de cálculo mental com números naturais.", "competencia": "Competência Geral 2"}
+    ],
+    "5º ano": [
+        {"habilidade": "EF05MA07", "habilidade_texto": "Resolver e elaborar problemas de adição e subtração com números naturais e com números racionais.", "competencia": "Competência Geral 1"},
+        {"habilidade": "EF05MA16", "habilidade_texto": "Associar figuras geométricas espaciais a suas planificações e analisar suas características.", "competencia": "Competência Geral 2"}
+    ],
+    "6º ano": [
+        {"habilidade": "EF06MA01", "habilidade_texto": "Comparar e ordenar números naturais e racionais em diferentes contextos e associá-los a pontos na reta.", "competencia": "Competência Geral 1"},
+        {"habilidade": "EF06MA10", "habilidade_texto": "Resolver e elaborar problemas que envolvam adição ou subtração com números racionais positivos na forma decimal.", "competencia": "Competência Geral 2"},
+        {"habilidade": "EF06MA24", "habilidade_texto": "Determinar a probabilidade de ocorrência de um resultado em experimentos aleatórios simples.", "competencia": "Competência Geral 3"}
+    ],
+    "7º ano": [
+        {"habilidade": "EF07MA01", "habilidade_texto": "Resolver e elaborar problemas com números inteiros que envolvam as operações de adição, subtração, multiplicação, divisão e potenciação.", "competencia": "Competência Geral 1"},
+        {"habilidade": "EF07MA10", "habilidade_texto": "Comparar e ordenar números racionais em diferentes contextos.", "competencia": "Competência Geral 2"}
+    ],
+    "8º ano": [
+        {"habilidade": "EF08MA01", "habilidade_texto": "Efetuar cálculos com potências expoentes inteiros e aplicá-los em situações-problema.", "competencia": "Competência Geral 1"},
+        {"habilidade": "EF08MA07", "habilidade_texto": "Resolver e elaborar problemas que envolvam o cálculo de porcentagens e juros simples.", "competencia": "Competência Geral 2"}
+    ],
+    "9º ano": [
+        {"habilidade": "EF09MA01", "habilidade_texto": "Reconhecer e empregar a notação científica para expressar e comparar grandezas muito grandes ou muito pequenas.", "competencia": "Competência Geral 1"},
+        {"habilidade": "EF09MA07", "habilidade_texto": "Resolver problemas que envolvam equações do segundo grau por meio de diferentes estratégias.", "competencia": "Competência Geral 2"},
+        {"habilidade": "EF09MA18", "habilidade_texto": "Resolver e elaborar problemas que envolvam o cálculo de volume de prismas, pirâmides, cilindros e cones.", "competencia": "Competência Geral 3"}
+    ]
+}
+
 def check_admin_access():
     """Verifica se o usuário atual é o administrador"""
     if not check_authentication():
@@ -331,48 +372,179 @@ def main():
             user_data = filtered_df[filtered_df['email'] == selected_email].iloc[0]
             
             with st.expander(f"Gerenciar: {user_data['name']} ({selected_email})", expanded=True):
-                col_edit1, col_edit2 = st.columns(2)
+                sub_tab1, sub_tab2 = st.tabs(["📊 Relatório de Aprendizagem (BNCC)", "⚙️ Configurações da Conta"])
                 
-                with col_edit1:
-                    st.markdown("#### Editar Dados")
-                    new_name = st.text_input("Nome", user_data['name'])
-                    new_nickname = st.text_input("Nickname", user_data['nickname'])
-                    new_xp = st.number_input("XP", value=int(user_data['xp']), step=10)
-                    new_level = st.number_input("Nível", value=int(user_data['level']), step=1)
+                with sub_tab1:
+                    st.subheader(f"Desempenho Acadêmico de {user_data['name']}")
                     
-                    if st.button("💾 Salvar Alterações"):
-                        update_data = {
-                            'name': new_name,
-                            'nickname': new_nickname,
-                            'xp': new_xp,
-                            'level': new_level
-                        }
-                        if db.update_user_admin(selected_email, update_data):
-                            st.success("Dados atualizados com sucesso!")
-                            st.rerun()
-                        else:
-                            st.error("Erro ao atualizar dados.")
-                            
-                with col_edit2:
-                    st.markdown("#### Zona de Perigo")
-                    st.warning("Ações irreversíveis")
-                    
-                    if st.button("🗑️ DELETAR USUÁRIO", type="primary"):
-                        # Confirmação simples via session state ou apenas um aviso forte
-                        # Streamlit buttons resetam, então idealmente usaria um modal ou confirmação em duas etapas
-                        # Aqui vamos usar um checkbox de segurança
-                        st.session_state[f'confirm_delete_{selected_email}'] = True
+                    # Estatísticas Rápidas
+                    col_stu1, col_stu2, col_stu3, col_stu4 = st.columns(4)
+                    with col_stu1:
+                        st.metric("XP Total", user_data['xp'])
+                    with col_stu2:
+                        st.metric("Nível", user_data['level'])
+                    with col_stu3:
+                        st.metric("Exercícios Resolvidos", user_data.get('exercises_completed_count', 0))
+                    with col_stu4:
+                        streak = user_data.get('current_streak', 0)
+                        st.metric("Ofensiva de Acertos", f"🔥 {streak}")
                         
-                    if st.session_state.get(f'confirm_delete_{selected_email}'):
-                        st.error("Tem certeza? Isso apagará todo o progresso e dados do usuário.")
-                        if st.button("Sim, tenho certeza absoluta"):
-                            if db.delete_user(selected_email):
-                                st.success(f"Usuário {selected_email} deletado.")
-                                # Limpar estado e recarregar
-                                del st.session_state[f'confirm_delete_{selected_email}']
+                    st.write(f"🏫 **Escola:** {user_data.get('school', 'N/A')} | 📅 **Série:** {user_data.get('school_year', 'N/A')} | 🎂 **Idade:** {user_data.get('age', 'N/A') if pd.notna(user_data.get('age')) else 'N/A'} anos | ❤️ **Gosto por Matemática:** {user_data.get('confidence', 'N/A')}/10")
+                    
+                    st.divider()
+                    
+                    # Obter habilidades reais e tratar dados simulados se necessário
+                    student_skills = user_data.get('completed_bncc_skills', {})
+                    is_simulated = False
+                    
+                    # Se vazio, gerar dados simulados (fake) determinísticos com base na série do aluno
+                    if not student_skills:
+                        is_simulated = True
+                        school_year = user_data.get('school_year', '6º ano')
+                        rec_list = RECOMMENDED_SKILLS.get(school_year, RECOMMENDED_SKILLS["6º ano"])
+                        
+                        student_skills = {}
+                        # Simular que completou 2 habilidades recomendadas
+                        for i, item in enumerate(rec_list[:2]):
+                            student_skills[f"sim_{i}"] = {
+                                "habilidade": item["habilidade"],
+                                "habilidade_texto": item["habilidade_texto"],
+                                "competencia": item["competencia"],
+                                "competencia_texto": "Desenvolvimento simulado (Demonstração)"
+                            }
+                    
+                    # Habilidades Dominadas
+                    st.markdown("### ✅ Habilidades Dominadas")
+                    if is_simulated:
+                        st.warning("⚠️ Este aluno ainda não possui habilidades reais registradas no banco. Exibindo **Habilidades Simuladas** com base em sua série escolar para demonstração.")
+                    
+                    if student_skills:
+                        skills_list = []
+                        for m_id, s_info in student_skills.items():
+                            if isinstance(s_info, dict):
+                                skills_list.append({
+                                    "Código": s_info.get("habilidade", "N/A"),
+                                    "Descrição": s_info.get("habilidade_texto", "N/A"),
+                                    "Competência": s_info.get("competencia", "N/A"),
+                                    "Origem": "Simulado 🧪" if is_simulated else "Real 🟢"
+                                })
+                        st.dataframe(pd.DataFrame(skills_list), use_container_width=True, hide_index=True)
+                    else:
+                        st.info("Nenhuma habilidade desenvolvida ainda.")
+                        
+                    st.divider()
+                    
+                    # Habilidades por Desenvolver (Falta Desenvolver pela Turma)
+                    st.markdown("### 📈 Habilidades Pendentes da Série")
+                    school_year = user_data.get('school_year', '6º ano')
+                    
+                    # Extrair habilidades de outros alunos na mesma série
+                    cohort_users = df[df['school_year'] == school_year]
+                    cohort_skills = []
+                    
+                    for idx, c_row in cohort_users.iterrows():
+                        if c_row['email'] == user_data['email']:
+                            continue
+                        c_skills = c_row.get('completed_bncc_skills', {})
+                        if isinstance(c_skills, dict):
+                            for m_id, s_info in c_skills.items():
+                                if isinstance(s_info, dict):
+                                    cohort_skills.append({
+                                        'habilidade': s_info.get('habilidade', 'N/A'),
+                                        'habilidade_texto': s_info.get('habilidade_texto', 'N/A'),
+                                        'competencia': s_info.get('competencia', 'N/A'),
+                                        'email': c_row['email']
+                                    })
+                                    
+                    cohort_skills_df = pd.DataFrame(cohort_skills)
+                    completed_codes = {s_info.get('habilidade') for s_info in student_skills.values() if isinstance(s_info, dict)}
+                    
+                    if not cohort_skills_df.empty:
+                        cohort_summary = []
+                        total_cohort_students = cohort_users['email'].nunique() - 1
+                        if total_cohort_students <= 0:
+                            total_cohort_students = 1
+                            
+                        for hab in cohort_skills_df['habilidade'].unique():
+                            if hab in completed_codes:
+                                continue
+                            hab_df = cohort_skills_df[cohort_skills_df['habilidade'] == hab]
+                            desc = hab_df['habilidade_texto'].iloc[0]
+                            comp = hab_df['competencia'].iloc[0]
+                            count = hab_df['email'].nunique()
+                            pct = (count / total_cohort_students) * 100
+                            
+                            cohort_summary.append({
+                                'Código': hab,
+                                'Habilidade': desc,
+                                'Competência': comp,
+                                '% de Alunos da Turma': f"{pct:.1f}%",
+                                'Alunos Concluintes': count
+                            })
+                            
+                        if cohort_summary:
+                            st.write(f"Estas habilidades já foram dominadas por outros alunos da série **{school_year}**, mas **{user_data['name']}** ainda não as completou:")
+                            st.dataframe(pd.DataFrame(cohort_summary), use_container_width=True, hide_index=True)
+                        else:
+                            st.success(f"🎉 Fantástico! **{user_data['name']}** dominou todas as habilidades que os demais alunos da série **{school_year}** completaram!")
+                    else:
+                        # Se não há dados na turma, exibir recomendações sugeridas da série do catálogo
+                        rec_list = RECOMMENDED_SKILLS.get(school_year, RECOMMENDED_SKILLS.get("6º ano", []))
+                        pending_recs = [item for item in rec_list if item["habilidade"] not in completed_codes]
+                        
+                        if pending_recs:
+                            st.write(f"Não há outros alunos da série **{school_year}** com histórico de progresso. Exibindo habilidades recomendadas pelo catálogo da série para desenvolvimento:")
+                            recs_display = []
+                            for item in pending_recs:
+                                recs_display.append({
+                                    "Código": item["habilidade"],
+                                    "Habilidade": item["habilidade_texto"],
+                                    "Competência": item["competencia"],
+                                    "Status": "Pendente 🔴"
+                                })
+                            st.dataframe(pd.DataFrame(recs_display), use_container_width=True, hide_index=True)
+                        else:
+                            st.success("Todas as habilidades sugeridas para esta série escolar já foram dominadas!")
+                            
+                with sub_tab2:
+                    col_edit1, col_edit2 = st.columns(2)
+                    
+                    with col_edit1:
+                        st.markdown("#### Editar Dados")
+                        new_name = st.text_input("Nome", user_data['name'])
+                        new_nickname = st.text_input("Nickname", user_data['nickname'])
+                        new_xp = st.number_input("XP", value=int(user_data['xp']), step=10)
+                        new_level = st.number_input("Nível", value=int(user_data['level']), step=1)
+                        
+                        if st.button("💾 Salvar Alterações"):
+                            update_data = {
+                                'name': new_name,
+                                'nickname': new_nickname,
+                                'xp': new_xp,
+                                'level': new_level
+                            }
+                            if db.update_user_admin(selected_email, update_data):
+                                st.success("Dados atualizados com sucesso!")
                                 st.rerun()
                             else:
-                                st.error("Erro ao deletar usuário.")
+                                st.error("Erro ao atualizar dados.")
+                                
+                    with col_edit2:
+                        st.markdown("#### Zona de Perigo")
+                        st.warning("Ações irreversíveis")
+                        
+                        if st.button("🗑️ DELETAR USUÁRIO", type="primary"):
+                            st.session_state[f'confirm_delete_{selected_email}'] = True
+                            
+                        if st.session_state.get(f'confirm_delete_{selected_email}'):
+                            st.error("Tem certeza? Isso apagará todo o progresso e dados do usuário.")
+                            if st.button("Sim, tenho certeza absoluta"):
+                                if db.delete_user(selected_email):
+                                    st.success(f"Usuário {selected_email} deletado.")
+                                    del st.session_state[f'confirm_delete_{selected_email}']
+                                    st.rerun()
+                                else:
+                                    st.error("Erro ao deletar usuário.")
 
 if __name__ == "__main__":
     main()

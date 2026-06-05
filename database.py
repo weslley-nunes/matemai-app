@@ -333,7 +333,10 @@ class FirestoreDB:
                     'school_year': profile.get('school_year', 'N/A'),
                     'age': profile.get('age', None),
                     'confidence': profile.get('confidence', None),
-                    'completed_bncc_skills': progress_data.get('completed_bncc_skills', {}) if progress_data else {}
+                    'completed_bncc_skills': progress_data.get('completed_bncc_skills', {}) if progress_data else {},
+                    'exercises_completed_count': progress_data.get('exercises_completed_count', 0) if progress_data else 0,
+                    'current_streak': progress_data.get('current_streak', 0) if progress_data else 0,
+                    'current_study_streak': progress_data.get('current_study_streak', 0) if progress_data else 0
                 }
                 all_users.append(user_info)
                 
