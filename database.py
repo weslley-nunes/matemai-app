@@ -319,6 +319,7 @@ class FirestoreDB:
                 
                 # Buscar progresso correspondente
                 progress_data = self.load_progress(email)
+                profile = progress_data.get('profile', {}) if progress_data else {}
                 
                 user_info = {
                     'email': email,
@@ -328,7 +329,11 @@ class FirestoreDB:
                     'created_at': user_data.get('created_at'),
                     'xp': progress_data.get('xp', 0) if progress_data else 0,
                     'level': progress_data.get('level', 1) if progress_data else 1,
-                    'school': progress_data.get('profile', {}).get('school_name', 'N/A') if progress_data else 'N/A'
+                    'school': profile.get('school_name', 'N/A'),
+                    'school_year': profile.get('school_year', 'N/A'),
+                    'age': profile.get('age', None),
+                    'confidence': profile.get('confidence', None),
+                    'completed_bncc_skills': progress_data.get('completed_bncc_skills', {}) if progress_data else {}
                 }
                 all_users.append(user_info)
                 
