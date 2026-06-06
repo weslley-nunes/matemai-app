@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import get_ai_methodology, setup_app, show_sidebar, render_avatar
+from utils import get_ai_methodology, setup_app, show_sidebar, render_avatar, save_user_progress
 from avatar_assets import AVATAR_ASSETS, get_avatar_url
 from database import get_database
 
@@ -191,83 +191,159 @@ st.divider()
 # --- Personal Data Section ---
 st.header("📝 Dados Pessoais")
 
-with st.form("profile_form"):
-    # Get current values or defaults
-    current_profile = st.session_state.user_profile or {}
-    
-    default_name = current_profile.get("name", "")
-    default_nickname = current_profile.get("nickname", "")
-    default_age = current_profile.get("age", 10)
-    default_confidence = current_profile.get("confidence", 5)
-    default_interests = current_profile.get("interests", [])
-    default_school_year = current_profile.get("school_year", "6º ano")
-    default_school_name = current_profile.get("school_name", "")
-    
-    # Form Fields
-    name = st.text_input("Qual é o seu nome?", value=default_name)
-    nickname = st.text_input("Como você quer ser chamado no Ranking? (Apelido)", value=default_nickname, help="Esse nome aparecerá para os outros alunos. Se deixar em branco, criaremos um nome secreto para você!")
-    age = st.number_input("Quantos anos você tem?", min_value=5, max_value=100, value=default_age)
-    
-    school_year = st.selectbox(
-        "Em que ano você estuda?",
-        ["1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "1º ano EM", "2º ano EM", "3º ano EM"],
-        index=["1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "1º ano EM", "2º ano EM", "3º ano EM"].index(default_school_year) if default_school_year in ["1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "1º ano EM", "2º ano EM", "3º ano EM"] else 5
-    )
-    
-    school_name = st.text_input("Nome da sua escola:", value=default_school_name)
-    
-    confidence = st.slider("De 1 a 10, o quanto você gosta de matemática?", 1, 10, default_confidence)
-    
-    interests = st.multiselect(
-        "O que você mais gosta de fazer?",
-        ["Ler histórias", "Jogar videogames", "Resolver quebra-cabeças", "Desenhar", "Esportes", "Música", "Espaço", "Dinossauros", "Culinária"],
-        default=default_interests
-    )
-    
-    submitted = st.form_submit_button("Salvar Perfil")
+# Get current values or defaults
+current_profile = st.session_state.user_profile or {}
 
-    if submitted:
-        if not name:
-            st.error("Por favor, digite seu nome.")
-        else:
-            # AI Agent Logic
-            answers = {
-                "name": name,
-                "nickname": nickname,
-                "age": age,
-                "school_year": school_year,
-                "school_name": school_name,
-                "confidence": confidence,
-                "interest": " ".join(interests)
-            }
+default_name = current_profile.get("name", "")
+default_nickname = current_profile.get("nickname", "")
+default_age = current_profile.get("age", 10)
+default_confidence = current_profile.get("confidence", 5)
+default_interests = current_profile.get("interests", [])
+default_school_year = current_profile.get("school_year", "6º ano")
+default_school_name = current_profile.get("school_name", "")
+
+# Form Fields
+name = st.text_input("Qual é o seu nome?", value=default_name)
+nickname = st.text_input("Como você quer ser chamado no Ranking? (Apelido)", value=default_nickname, help="Esse nome aparecerá para os outros alunos. Se deixar em branco, criaremos um nome secreto para você!")
+age = st.number_input("Quantos anos você tem?", min_value=5, max_value=100, value=default_age)
+
+school_year = st.selectbox(
+    "Em que ano você estuda?",
+    ["1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "1º ano EM", "2º ano EM", "3º ano EM"],
+    index=["1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "1º ano EM", "2º ano EM", "3º ano EM"].index(default_school_year) if default_school_year in ["1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "1º ano EM", "2º ano EM", "3º ano EM"] else 5
+)
+
+school_name = st.text_input("Nome da sua escola:", value=default_school_name)
+
+confidence = st.slider("De 1 a 10, o quanto você gosta de matemática?", 1, 10, default_confidence)
+
+# Predefined options and custom logic
+predefined_options = ["Ler histórias", "Jogar videogames", "Resolver quebra-cabeças", "Desenhar", "Esportes", "Música", "Espaço", "Dinossauros", "Culinária"]
+
+# Detect existing custom interests saved in default_interests
+custom_interests = [item for item in default_interests if item not in predefined_options]
+custom_val = custom_interests[0] if custom_interests else ""
+
+# Build default selections
+default_selected = [item for item in default_interests if item in predefined_options]
+if custom_interests:
+    default_selected.append("Outros")
+    
+interests = st.multiselect(
+    "O que você mais gosta de fazer?",
+    predefined_options + ["Outros"],
+    default=default_selected
+)
+
+# Text input for "Outros" interest
+custom_interest_input = ""
+if "Outros" in interests:
+    custom_interest_input = st.text_input(
+        "O que mais você gosta de fazer? Digite aqui:",
+        value=custom_val,
+        placeholder="Ex: Jogar xadrez, programar, andar de skate, astronomia...",
+        help="Este tema será utilizado pelo MatemAI para contextualizar seus problemas de matemática!"
+    )
+    
+# Learning Impact Card (Evidencing the impact on learning)
+st.markdown("""
+<div class="learning-impact-card">
+    <div class="card-header">
+        <span class="icon">🧠</span>
+        <span class="title">Seus Interesses Adaptam Seu Aprendizado!</span>
+    </div>
+    <div class="card-body">
+        O <b>MatemAI</b> utiliza seus gostos pessoais (incluindo o que você digitar em <b>Outros</b>) 
+        para personalizar as missões e exercícios matemáticos. Se você escolher <i>Música</i> ou 
+        escrever algo como <i>"Futebol"</i>, a nossa IA vai contextualizar os problemas 
+        de matemática com esses temas, tornando tudo muito mais divertido e fácil de aprender!
+    </div>
+</div>
+<style>
+.learning-impact-card {
+    background: linear-gradient(135deg, rgba(0, 71, 171, 0.04) 0%, rgba(0, 191, 255, 0.04) 100%);
+    border: 1px dashed rgba(0, 71, 171, 0.25);
+    border-left: 5px solid #0047AB;
+    padding: 16px;
+    border-radius: 12px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 71, 171, 0.02);
+}
+.learning-impact-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.learning-impact-card .icon {
+    font-size: 1.25rem;
+}
+.learning-impact-card .title {
+    font-weight: bold;
+    color: #0047AB;
+    font-size: 1rem;
+}
+.learning-impact-card .card-body {
+    color: #2C3E50;
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+</style>
+""", unsafe_allow_html=True)
+
+submitted = st.button("Salvar Perfil", type="primary", use_container_width=True)
+
+if submitted:
+    if not name:
+        st.error("Por favor, digite seu nome.")
+    else:
+        # Process interest list to map "Outros" to user's typed value
+        final_interests = [item for item in interests if item != "Outros"]
+        if "Outros" in interests and custom_interest_input.strip():
+            final_interests.append(custom_interest_input.strip())
             
-            # Clear cache if interests changed significantly (optional, but good practice)
-            # st.cache_data.clear() 
-            
-            methodology = get_ai_methodology(answers)
-            
-            # Update Session State
-            st.session_state.user_profile.update({
-                "name": name,
-                "nickname": nickname,
-                "age": age,
-                "school_year": school_year,
-                "school_name": school_name,
-                "confidence": confidence,
-                "interests": interests,
-                "methodology": methodology
-            })
-            
-            st.success(f"Perfil atualizado! Nova metodologia: **{methodology}**")
-            st.balloons()
-            
-            # Mensagem de redirecionamento
-            st.info("🚀 Redirecionando para Desafios Gamificados em 5 segundos...")
-            
-            # Aguardar 5 segundos e redirecionar
-            import time
-            time.sleep(5)
-            st.switch_page("pages/2_Desafios_Gamificados.py")
+        # AI Agent Logic
+        answers = {
+            "name": name,
+            "nickname": nickname,
+            "age": age,
+            "school_year": school_year,
+            "school_name": school_name,
+            "confidence": confidence,
+            "interest": " ".join(final_interests)
+        }
+        
+        # Clear cache if interests changed significantly (optional, but good practice)
+        # st.cache_data.clear() 
+        
+        methodology = get_ai_methodology(answers)
+        
+        # Update Session State
+        st.session_state.user_profile.update({
+            "name": name,
+            "nickname": nickname,
+            "age": age,
+            "school_year": school_year,
+            "school_name": school_name,
+            "confidence": confidence,
+            "interests": final_interests,
+            "methodology": methodology
+        })
+        
+        # Save progress
+        save_user_progress()
+        
+        st.success(f"Perfil atualizado! Nova metodologia: **{methodology}**")
+        st.balloons()
+        
+        # Mensagem de redirecionamento
+        st.info("🚀 Redirecionando para Desafios Gamificados em 5 segundos...")
+        
+        # Aguardar 5 segundos e redirecionar
+        import time
+        time.sleep(5)
+        st.switch_page("pages/2_Desafios_Gamificados.py")
 
 st.markdown("---")
 st.markdown("### 📜 Histórico de Habilidades Desenvolvidas")
