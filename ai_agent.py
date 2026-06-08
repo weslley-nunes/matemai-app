@@ -15,104 +15,100 @@ class MathAI:
         
         genai.configure(api_key=api_key)
         
-        # Primary model
-        self.primary_model_name = 'gemini-2.5-flash-lite'
-        self.fallback_model_name = 'gemini-2.0-flash-lite'
-        
-        # Start with primary model
-        self.model = genai.GenerativeModel(
-            self.primary_model_name,
-            generation_config={
-                "temperature": 0.7,
-                "top_p": 0.95,
-                "top_k": 40,
-                "max_output_tokens": 1024,
-            }
-        )
-        self.current_model_name = self.primary_model_name
-        self.use_fallback = False
+        # Pool de modelos disponíveis para failover automático
+        self.models_pool = [
+            'gemini-2.5-flash-lite',
+            'gemini-3.1-flash-lite',
+            'gemini-2.0-flash-lite',
+            'gemini-2.5-flash',
+            'gemini-3.5-flash',
+            'gemini-2.0-flash'
+        ]
+        self.current_model_index = 0
         self.prepayment_depleted = False
     
     def _generate_with_fallback(self, prompt):
         """
-        Tenta gerar conteúdo com o modelo primário. 
-        Se falhar por limite de cota/rate limit (429), tenta novamente com backoff e chaveamento de modelo.
+        Gera conteúdo rotacionando entre os modelos disponíveis no pool se houver falhas de limite de cota (429).
+        Informa o usuário no Streamlit para aguardar a troca de modelo de contingência.
         """
         import time
-        max_retries = 3
-        backoff_delay = 2 # segundos
         
-        for attempt in range(max_retries):
+        # Garante que temos o pool de modelos inicializado
+        if not hasattr(self, 'models_pool'):
+            self.models_pool = [
+                'gemini-2.5-flash-lite',
+                'gemini-3.1-flash-lite',
+                'gemini-2.0-flash-lite',
+                'gemini-2.5-flash',
+                'gemini-3.5-flash',
+                'gemini-2.0-flash'
+            ]
+            self.current_model_index = 0
+
+        attempts = len(self.models_pool)
+        
+        for attempt in range(attempts):
+            model_name = self.models_pool[self.current_model_index]
             try:
-                response = self.model.generate_content(prompt)
+                # Inicializa o modelo atual
+                model = genai.GenerativeModel(
+                    model_name,
+                    generation_config={
+                        "temperature": 0.7,
+                        "top_p": 0.95,
+                        "top_k": 40,
+                        "max_output_tokens": 1024,
+                    }
+                )
+                response = model.generate_content(prompt)
                 return response
             except Exception as e:
                 error_str = str(e).lower()
                 
-                # Check if prepayment is depleted (erro definitivo de saldo)
+                # Se for erro de saldo esgotado (prepayment depleted), interrompe pois é permanente
                 if 'prepayment' in error_str or 'depleted' in error_str:
                     self.prepayment_depleted = True
                     raise e
                 
-                # Identifica se é limite de requisições por minuto ou cota de tokens
-                is_rate_limit = any(term in error_str for term in ['rate', 'quota', 'limit', '429'])
-                is_not_found = any(term in error_str for term in ['not found', '404'])
+                # Identifica se é erro de limite de cota (rate limit / 429) ou indisponibilidade (404)
+                is_quota_error = any(term in error_str for term in ['rate', 'quota', 'limit', '429', 'not found', '404'])
                 
-                if is_rate_limit or is_not_found:
-                    print(f"[WARN] Erro no modelo {self.current_model_name} (Tentativa {attempt + 1}/{max_retries}): {e}")
+                if is_quota_error:
+                    # Rotaciona para o próximo modelo do pool
+                    next_index = (self.current_model_index + 1) % len(self.models_pool)
+                    next_model_name = self.models_pool[next_index]
+                    self.current_model_index = next_index
                     
-                    if is_rate_limit and attempt < max_retries - 1:
-                        # Aplica backoff progressivo (2s, 4s...)
-                        sleep_time = backoff_delay * (attempt + 1)
-                        print(f"[INFO] Limite de cota atingido. Aguardando {sleep_time} segundos antes de tentar novamente...")
-                        time.sleep(sleep_time)
-                        
-                        # Tenta alternar para o modelo secundário para distribuir carga
-                        if not self.use_fallback:
-                            print(f"[INFO] Alternando para o modelo fallback {self.fallback_model_name}")
-                            self.model = genai.GenerativeModel(
-                                self.fallback_model_name,
-                                generation_config={
-                                    "temperature": 0.7,
-                                    "top_p": 0.95,
-                                    "top_k": 40,
-                                    "max_output_tokens": 1024,
-                                }
-                            )
-                            self.current_model_name = self.fallback_model_name
-                            self.use_fallback = True
-                        continue
+                    print(f"[WARN] Limite no modelo {model_name}. Tentativa {attempt + 1}/{attempts}. Alternando para {next_model_name}...")
                     
-                    # Se não puder tentar de novo ou se for 404, executa chaveamento final
-                    if not self.use_fallback:
-                        print(f"[INFO] Trocando automaticamente para {self.fallback_model_name}")
-                        self.model = genai.GenerativeModel(
-                            self.fallback_model_name,
-                            generation_config={
-                                "temperature": 0.7,
-                                "top_p": 0.95,
-                                "top_k": 40,
-                                "max_output_tokens": 1024,
-                            }
-                        )
-                        self.current_model_name = self.fallback_model_name
-                        self.use_fallback = True
-                        
-                        try:
-                            response = self.model.generate_content(prompt)
-                            print(f"[SUCCESS] Sucesso com {self.fallback_model_name}")
-                            return response
-                        except Exception as fallback_error:
-                            fallback_error_str = str(fallback_error).lower()
-                            if 'prepayment' in fallback_error_str or 'depleted' in fallback_error_str:
-                                self.prepayment_depleted = True
-                            print(f"[ERROR] Erro também no fallback: {fallback_error}")
-                            raise fallback_error
-                    else:
-                        raise e
+                    # Tenta notificar o usuário na interface do Streamlit (toast)
+                    try:
+                        import streamlit as st
+                        st.toast(f"⏳ Cota atingida no modelo '{model_name}'. Aguarde, trocando para '{next_model_name}'...", icon="🔄")
+                    except Exception:
+                        pass
+                    
+                    # Aguarda 2 segundos de respiro à cota global da API antes de ir para o próximo modelo
+                    time.sleep(2)
+                    continue
                 else:
-                    # Erro que não é de cota/rate limit, propaga imediatamente
+                    # Erro estrutural ou de código, propaga imediatamente
                     raise e
+                    
+        # Se todos falharem após rodar o pool inteiro, espera 5 segundos e faz uma última tentativa
+        print("[WARN] Todos os modelos do pool falharam. Aguardando 5 segundos para respiro final...")
+        try:
+            import streamlit as st
+            st.toast("⚠️ Todos os modelos atingiram limite de cota. Aguardando 5 segundos para redefinir cota...", icon="⏳")
+        except Exception:
+            pass
+        time.sleep(5)
+        
+        self.current_model_index = 0
+        preferred_model = self.models_pool[0]
+        model = genai.GenerativeModel(preferred_model)
+        return model.generate_content(prompt)
     
     def get_completed_bncc_skills_summary(self, completed_skills_dict):
         """
