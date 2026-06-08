@@ -35,55 +35,84 @@ class MathAI:
     
     def _generate_with_fallback(self, prompt):
         """
-        Tenta gerar conteúdo com o modelo primário, 
-        se falhar por rate limit, usa o modelo fallback automaticamente.
+        Tenta gerar conteúdo com o modelo primário. 
+        Se falhar por limite de cota/rate limit (429), tenta novamente com backoff e chaveamento de modelo.
         """
-        try:
-            response = self.model.generate_content(prompt)
-            return response
-        except Exception as e:
-            error_str = str(e).lower()
-            
-            # Check if prepayment is depleted
-            if 'prepayment' in error_str or 'depleted' in error_str:
-                self.prepayment_depleted = True
-            
-            # Check if it's a rate limit error OR a 404/Not Found (model not available)
-            if 'rate' in error_str or 'quota' in error_str or 'limit' in error_str or '429' in error_str or 'not found' in error_str or '404' in error_str:
-                print(f"[WARN] Erro no modelo {self.current_model_name}: {e}")
+        import time
+        max_retries = 3
+        backoff_delay = 2 # segundos
+        
+        for attempt in range(max_retries):
+            try:
+                response = self.model.generate_content(prompt)
+                return response
+            except Exception as e:
+                error_str = str(e).lower()
                 
-                # Switch to fallback model if not already using it
-                if not self.use_fallback:
-                    print(f"[INFO] Trocando automaticamente para {self.fallback_model_name}")
-                    self.model = genai.GenerativeModel(
-                        self.fallback_model_name,
-                        generation_config={
-                            "temperature": 0.7,
-                            "top_p": 0.95,
-                            "top_k": 40,
-                            "max_output_tokens": 1024,
-                        }
-                    )
-                    self.current_model_name = self.fallback_model_name
-                    self.use_fallback = True
-                    
-                    # Try again with fallback model
-                    try:
-                        response = self.model.generate_content(prompt)
-                        print(f"[SUCCESS] Sucesso com {self.fallback_model_name}")
-                        return response
-                    except Exception as fallback_error:
-                        fallback_error_str = str(fallback_error).lower()
-                        if 'prepayment' in fallback_error_str or 'depleted' in fallback_error_str:
-                            self.prepayment_depleted = True
-                        print(f"[ERROR] Erro também no fallback: {fallback_error}")
-                        raise fallback_error
-                else:
-                    # Already using fallback, re-raise the error
+                # Check if prepayment is depleted (erro definitivo de saldo)
+                if 'prepayment' in error_str or 'depleted' in error_str:
+                    self.prepayment_depleted = True
                     raise e
-            else:
-                # Not a rate limit error, re-raise
-                raise e
+                
+                # Identifica se é limite de requisições por minuto ou cota de tokens
+                is_rate_limit = any(term in error_str for term in ['rate', 'quota', 'limit', '429'])
+                is_not_found = any(term in error_str for term in ['not found', '404'])
+                
+                if is_rate_limit or is_not_found:
+                    print(f"[WARN] Erro no modelo {self.current_model_name} (Tentativa {attempt + 1}/{max_retries}): {e}")
+                    
+                    if is_rate_limit and attempt < max_retries - 1:
+                        # Aplica backoff progressivo (2s, 4s...)
+                        sleep_time = backoff_delay * (attempt + 1)
+                        print(f"[INFO] Limite de cota atingido. Aguardando {sleep_time} segundos antes de tentar novamente...")
+                        time.sleep(sleep_time)
+                        
+                        # Tenta alternar para o modelo secundário para distribuir carga
+                        if not self.use_fallback:
+                            print(f"[INFO] Alternando para o modelo fallback {self.fallback_model_name}")
+                            self.model = genai.GenerativeModel(
+                                self.fallback_model_name,
+                                generation_config={
+                                    "temperature": 0.7,
+                                    "top_p": 0.95,
+                                    "top_k": 40,
+                                    "max_output_tokens": 1024,
+                                }
+                            )
+                            self.current_model_name = self.fallback_model_name
+                            self.use_fallback = True
+                        continue
+                    
+                    # Se não puder tentar de novo ou se for 404, executa chaveamento final
+                    if not self.use_fallback:
+                        print(f"[INFO] Trocando automaticamente para {self.fallback_model_name}")
+                        self.model = genai.GenerativeModel(
+                            self.fallback_model_name,
+                            generation_config={
+                                "temperature": 0.7,
+                                "top_p": 0.95,
+                                "top_k": 40,
+                                "max_output_tokens": 1024,
+                            }
+                        )
+                        self.current_model_name = self.fallback_model_name
+                        self.use_fallback = True
+                        
+                        try:
+                            response = self.model.generate_content(prompt)
+                            print(f"[SUCCESS] Sucesso com {self.fallback_model_name}")
+                            return response
+                        except Exception as fallback_error:
+                            fallback_error_str = str(fallback_error).lower()
+                            if 'prepayment' in fallback_error_str or 'depleted' in fallback_error_str:
+                                self.prepayment_depleted = True
+                            print(f"[ERROR] Erro também no fallback: {fallback_error}")
+                            raise fallback_error
+                    else:
+                        raise e
+                else:
+                    # Erro que não é de cota/rate limit, propaga imediatamente
+                    raise e
     
     def get_completed_bncc_skills_summary(self, completed_skills_dict):
         """
