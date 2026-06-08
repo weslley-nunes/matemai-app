@@ -31,6 +31,7 @@ class MathAI:
         )
         self.current_model_name = self.primary_model_name
         self.use_fallback = False
+        self.prepayment_depleted = False
     
     def _generate_with_fallback(self, prompt):
         """
@@ -43,13 +44,17 @@ class MathAI:
         except Exception as e:
             error_str = str(e).lower()
             
+            # Check if prepayment is depleted
+            if 'prepayment' in error_str or 'depleted' in error_str:
+                self.prepayment_depleted = True
+            
             # Check if it's a rate limit error OR a 404/Not Found (model not available)
             if 'rate' in error_str or 'quota' in error_str or 'limit' in error_str or '429' in error_str or 'not found' in error_str or '404' in error_str:
-                print(f"⚠️ Erro no modelo {self.current_model_name}: {e}")
+                print(f"[WARN] Erro no modelo {self.current_model_name}: {e}")
                 
                 # Switch to fallback model if not already using it
                 if not self.use_fallback:
-                    print(f"🔄 Trocando automaticamente para {self.fallback_model_name}")
+                    print(f"[INFO] Trocando automaticamente para {self.fallback_model_name}")
                     self.model = genai.GenerativeModel(
                         self.fallback_model_name,
                         generation_config={
@@ -65,10 +70,13 @@ class MathAI:
                     # Try again with fallback model
                     try:
                         response = self.model.generate_content(prompt)
-                        print(f"✅ Sucesso com {self.fallback_model_name}")
+                        print(f"[SUCCESS] Sucesso com {self.fallback_model_name}")
                         return response
                     except Exception as fallback_error:
-                        print(f"❌ Erro também no fallback: {fallback_error}")
+                        fallback_error_str = str(fallback_error).lower()
+                        if 'prepayment' in fallback_error_str or 'depleted' in fallback_error_str:
+                            self.prepayment_depleted = True
+                        print(f"[ERROR] Erro também no fallback: {fallback_error}")
                         raise fallback_error
                 else:
                     # Already using fallback, re-raise the error

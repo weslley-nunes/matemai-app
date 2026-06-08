@@ -541,6 +541,14 @@ def setup_app(is_public_page=False, requires_profile=True):
     # Inicializar Sessão
     init_session_state()
 
+    # Verificar se o agente de IA está com saldo esgotado
+    try:
+        agent = get_ai_agent()
+        if agent and getattr(agent, "prepayment_depleted", False):
+            st.error("🚨 **Alerta do MatemAI:** Os créditos de pré-pagamento da sua chave de API do Gemini (Google AI Studio) estão esgotados! Por favor, acesse o [Google AI Studio](https://aistudio.google.com/) para recarregar o saldo do seu projeto. Enquanto isso, o sistema funcionará no modo de segurança com perguntas genéricas.")
+    except Exception:
+        pass
+
     # Enforce Authentication
     if not is_public_page and not st.session_state.get("logged_in"):
         st.warning("🔒 Por favor, faça login para continuar.")
