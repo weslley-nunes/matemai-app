@@ -19,9 +19,11 @@ if "current_mission" not in st.session_state or not st.session_state.current_mis
         
         if next_mission:
             st.session_state.current_mission = next_mission
-            # Clear previous problem if any
+            # Clear previous problem and victory feedback
             if "current_problem" in st.session_state:
                 del st.session_state.current_problem
+            if "victory_feedback" in st.session_state:
+                del st.session_state.victory_feedback
             st.rerun()
         else:
             st.warning("Nenhuma missão disponível. Volte para os Desafios!")
@@ -143,7 +145,12 @@ st.subheader("📝 Seu Desafio:")
 st.info(problem['question'])
 
 if st.session_state.problem_solved:
-    st.success("✅ Missão Cumprida!")
+    # Exibe o feedback socrático positivo da IA se estiver disponível
+    feedback_msg = st.session_state.get('victory_feedback')
+    if feedback_msg:
+        st.success(feedback_msg)
+    else:
+        st.success("✅ Missão Cumprida! Parabéns pelo seu aprendizado!")
     st.balloons()
     # Layout com dois botões
     col1, col2 = st.columns(2)
@@ -160,9 +167,11 @@ if st.session_state.problem_solved:
             if st.button("🚀 Próximo Desafio", type="primary", use_container_width=True):
                 st.session_state.current_mission = next_mission
                 st.session_state.problem_solved = False
-                # Limpar cache do problema anterior para gerar um novo
+                # Limpar cache do problema anterior e feedback de vitória
                 if "current_problem" in st.session_state:
                     del st.session_state.current_problem
+                if "victory_feedback" in st.session_state:
+                    del st.session_state.victory_feedback
                 st.rerun()
 else:
     # Initialize attempt counter for current problem
@@ -231,6 +240,8 @@ else:
                     # Track problem solved correctly for daily missions
                     update_problem_solved(is_correct=True)
                     
+                    # Salva o feedback de vitória no estado da sessão para exibição persistente
+                    st.session_state.victory_feedback = validation['feedback']
                     st.success(validation['feedback'])
                     
                     # Update Stats
