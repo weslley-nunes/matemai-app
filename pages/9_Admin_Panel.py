@@ -66,6 +66,296 @@ def check_admin_access():
         st.error("⛔ Acesso Negado. Você não tem permissão para acessar esta página.")
         st.stop()
 
+def get_neural_network_html(function_name, is_fallback):
+    func_js = f"'{function_name}'" if function_name else "null"
+    is_fallback_js = "true" if is_fallback else "false"
+    
+    html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {{
+    background-color: #0b0f19;
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    color: #e6edf3;
+}}
+.network-container {{
+    width: 100%;
+    height: 380px;
+    position: relative;
+}}
+svg {{
+    width: 100%;
+    height: 100%;
+}}
+.node {{
+    fill: #111827;
+    stroke: #374151;
+    stroke-width: 2px;
+    transition: all 0.5s ease;
+}}
+.node.input {{
+    stroke: #9c27b0;
+    fill: rgba(156, 39, 176, 0.1);
+}}
+.node.hidden {{
+    stroke: #3b82f6;
+    fill: rgba(59, 130, 246, 0.1);
+}}
+.node.output {{
+    stroke: #06b6d4;
+    fill: rgba(6, 182, 212, 0.1);
+}}
+.node.active-input {{
+    fill: #9c27b0;
+    stroke: #c084fc;
+    filter: drop-shadow(0 0 8px #c084fc);
+}}
+.node.active-hidden {{
+    fill: #2563eb;
+    stroke: #60a5fa;
+    filter: drop-shadow(0 0 8px #60a5fa);
+}}
+.node.active-output {{
+    fill: #0891b2;
+    stroke: #22d3ee;
+    filter: drop-shadow(0 0 8px #22d3ee);
+}}
+.node.active-output.fallback {{
+    fill: #dc2626;
+    stroke: #f87171;
+    filter: drop-shadow(0 0 8px #f87171);
+}}
+.link {{
+    stroke: rgba(55, 65, 81, 0.35);
+    stroke-width: 1px;
+    fill: none;
+    transition: stroke 0.5s ease, stroke-width 0.5s ease;
+}}
+.link.active {{
+    stroke: rgba(34, 211, 238, 0.75);
+    stroke-width: 2.5px;
+    stroke-dasharray: 6 6;
+    animation: dash 0.8s linear infinite;
+}}
+.link.active.fallback {{
+    stroke: rgba(248, 113, 113, 0.75);
+}}
+@keyframes dash {{
+    to {{
+        stroke-dashoffset: -20;
+    }}
+}}
+.label {{
+    fill: #9ca3af;
+    font-size: 10px;
+    font-weight: 500;
+    pointer-events: none;
+}}
+.label.active {{
+    fill: #ffffff;
+    font-weight: bold;
+}}
+.layer-title {{
+    fill: #6b7280;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}}
+</style>
+</head>
+<body>
+<div class="network-container">
+<svg id="neural-net" viewBox="0 0 800 380" preserveAspectRatio="xMidYMid meet">
+    <text x="100" y="30" class="layer-title" text-anchor="middle">Entrada</text>
+    <text x="300" y="30" class="layer-title" text-anchor="middle">Processamento (I)</text>
+    <text x="500" y="30" class="layer-title" text-anchor="middle">Processamento (II)</text>
+    <text x="700" y="30" class="layer-title" text-anchor="middle">Saída</text>
+    
+    <g id="links"></g>
+    <g id="nodes"></g>
+</svg>
+</div>
+
+<script>
+const nodesConfig = [
+    {{ id: 'i1', x: 100, y: 100, label: 'Contexto', type: 'input' }},
+    {{ id: 'i2', x: 100, y: 190, label: 'Perfil Aluno', type: 'input' }},
+    {{ id: 'i3', x: 100, y: 280, label: 'Entrada Aluno', type: 'input' }},
+    
+    {{ id: 'h1_1', x: 300, y: 70, label: 'Prompt Builder', type: 'hidden' }},
+    {{ id: 'h1_2', x: 300, y: 150, label: 'Model Router', type: 'hidden' }},
+    {{ id: 'h1_3', x: 300, y: 230, label: 'Chain of Thought', type: 'hidden' }},
+    {{ id: 'h1_4', x: 300, y: 310, label: 'ZDP Adaptative', type: 'hidden' }},
+    
+    {{ id: 'h2_1', x: 500, y: 70, label: 'Cognitive Scaffold', type: 'hidden' }},
+    {{ id: 'h2_2', x: 500, y: 150, label: 'Socratic Dialogue', type: 'hidden' }},
+    {{ id: 'h2_3', x: 500, y: 230, label: 'BNCC Mapping', type: 'hidden' }},
+    {{ id: 'h2_4', x: 500, y: 310, label: 'JSON Parser', type: 'hidden' }},
+    
+    {{ id: 'o1', x: 700, y: 100, label: 'Missions / Met', type: 'output' }},
+    {{ id: 'o2', x: 700, y: 190, label: 'Problem / Hint', type: 'output' }},
+    {{ id: 'o3', x: 700, y: 280, label: 'Feedback/Diagnostic', type: 'output' }}
+];
+
+const paths = {{
+    'generate_methodology': {{
+        nodes: ['i2', 'h1_1', 'h1_4', 'h2_4', 'o1'],
+        links: [['i2', 'h1_1'], ['i2', 'h1_4'], ['h1_1', 'h2_4'], ['h1_4', 'h2_4'], ['h2_4', 'o1']]
+    }},
+    'generate_missions': {{
+        nodes: ['i1', 'i2', 'h1_1', 'h1_2', 'h1_4', 'h2_3', 'h2_4', 'o1'],
+        links: [['i1', 'h1_1'], ['i2', 'h1_4'], ['h1_1', 'h2_3'], ['h1_4', 'h2_4'], ['h2_3', 'o1'], ['h2_4', 'o1']]
+    }},
+    'generate_greeting': {{
+        nodes: ['i2', 'h1_1', 'h2_1', 'o1'],
+        links: [['i2', 'h1_1'], ['h1_1', 'h2_1'], ['h2_1', 'o1']]
+    }},
+    'generate_problem': {{
+        nodes: ['i1', 'i2', 'h1_1', 'h1_3', 'h2_1', 'h2_3', 'h2_4', 'o2'],
+        links: [['i1', 'h1_3'], ['i2', 'h1_1'], ['h1_3', 'h2_1'], ['h1_1', 'h2_3'], ['h2_1', 'o2'], ['h2_3', 'h2_4'], ['h2_4', 'o2']]
+    }},
+    'get_bncc_alignment': {{
+        nodes: ['i1', 'h1_1', 'h2_3', 'h2_4', 'o2'],
+        links: [['i1', 'h1_1'], ['h1_1', 'h2_3'], ['h2_3', 'h2_4'], ['h2_4', 'o2']]
+    }},
+    'validate_answer': {{
+        nodes: ['i1', 'i3', 'h1_2', 'h1_4', 'h2_2', 'h2_4', 'o3'],
+        links: [['i3', 'h1_2'], ['i1', 'h1_4'], ['h1_2', 'h2_2'], ['h1_4', 'h2_4'], ['h2_2', 'o3'], ['h2_4', 'o3']]
+    }},
+    'generate_next_mission': {{
+        nodes: ['i1', 'i2', 'h1_1', 'h1_4', 'h2_4', 'o1'],
+        links: [['i1', 'h1_1'], ['i2', 'h1_4'], ['h1_1', 'h2_4'], ['h1_4', 'h2_4'], ['h2_4', 'o1']]
+    }}
+}};
+
+const linksGroup = document.getElementById('links');
+const nodesGroup = document.getElementById('nodes');
+
+const activeFunc = {func_js};
+const isFallback = {is_fallback_js};
+const activePath = paths[activeFunc] || {{ nodes: [], links: [] }};
+
+const layers = [[], [], [], []];
+nodesConfig.forEach(n => {{
+    if (n.type === 'input') layers[0].push(n);
+    else if (n.id.startsWith('h1_')) layers[1].push(n);
+    else if (n.id.startsWith('h2_')) layers[2].push(n);
+    else layers[3].push(n);
+}});
+
+// Render Links
+for (let l = 0; l < 3; l++) {{
+    const currentLayer = layers[l];
+    const nextLayer = layers[l+1];
+    
+    currentLayer.forEach(n1 => {{
+        nextLayer.forEach(n2 => {{
+            const isLinkActive = activePath.links.some(link => link[0] === n1.id && link[1] === n2.id);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', n1.x);
+            line.setAttribute('y1', n1.y);
+            line.setAttribute('x2', n2.x);
+            line.setAttribute('y2', n2.y);
+            line.setAttribute('id', `link-${{n1.id}}-${{n2.id}}`);
+            
+            let classStr = 'link';
+            if (isLinkActive) {{
+                classStr += ' active';
+                if (isFallback) classStr += ' fallback';
+            }}
+            line.setAttribute('class', classStr);
+            linksGroup.appendChild(line);
+        }});
+    }});
+}}
+
+// Render Nodes & Labels
+nodesConfig.forEach(n => {{
+    const isNodeActive = activePath.nodes.includes(n.id);
+    
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', n.x);
+    circle.setAttribute('cy', n.y);
+    circle.setAttribute('r', isNodeActive ? 13 : 9);
+    circle.setAttribute('id', `circle-${{n.id}}`);
+    
+    let classStr = `node ${{n.type}}`;
+    if (isNodeActive) {{
+        if (n.type === 'input') classStr += ' active-input';
+        else if (n.type === 'hidden') classStr += ' active-hidden';
+        else if (n.type === 'output') {{
+            classStr += ' active-output';
+            if (isFallback) classStr += ' fallback';
+        }}
+    }}
+    circle.setAttribute('class', classStr);
+    g.appendChild(circle);
+    
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', n.x);
+    text.setAttribute('y', n.y + 24);
+    text.setAttribute('class', `label ${{isNodeActive ? 'active' : ''}}`);
+    text.setAttribute('text-anchor', 'middle');
+    text.textContent = n.label;
+    g.appendChild(text);
+    
+    nodesGroup.appendChild(g);
+}});
+
+if (!activeFunc || !paths[activeFunc]) {{
+    let lastActivePath = null;
+    const animateIdle = () => {{
+        if (lastActivePath) {{
+            lastActivePath.links.forEach(link => {{
+                const el = document.getElementById(`link-${{link[0]}}-${{link[1]}}`);
+                if (el) el.setAttribute('class', 'link');
+            }});
+            lastActivePath.nodes.forEach(nid => {{
+                const el = document.getElementById(`circle-${{nid}}`);
+                if (el) {{
+                    const baseType = el.className.baseVal.split(' ')[1];
+                    el.setAttribute('class', `node ${{baseType}}`);
+                    el.setAttribute('r', 9);
+                }}
+            }});
+        }}
+        
+        const keys = Object.keys(paths);
+        const randomKey = keys[Math.floor(Math.random() * keys.length)];
+        const path = paths[randomKey];
+        lastActivePath = path;
+        
+        path.links.forEach(link => {{
+            const el = document.getElementById(`link-${{link[0]}}-${{link[1]}}`);
+            if (el) el.setAttribute('class', 'link active');
+        }});
+        path.nodes.forEach(nid => {{
+            const el = document.getElementById(`circle-${{nid}}`);
+            if (el) {{
+                const baseType = el.className.baseVal.split(' ')[1];
+                el.setAttribute('class', `node ${{baseType}} active-${{baseType}}`);
+                el.setAttribute('r', 13);
+            }}
+        }});
+    }};
+    
+    animateIdle();
+    setInterval(animateIdle, 2500);
+}}
+</script>
+</body>
+</html>
+"""
+    return html
+
+
 def main():
     check_admin_access()
     
@@ -85,7 +375,7 @@ def main():
     df = pd.DataFrame(users)
     
     # Tabs
-    tab1, tab2, tab3 = st.tabs(["📊 Dashboard Geral", "🎯 Monitoramento de Aprendizado (BNCC)", "👥 Gerenciar Usuários"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📊 Dashboard Geral", "🎯 Monitoramento de Aprendizado (BNCC)", "👥 Gerenciar Usuários", "🧠 Monitoramento da IA (Rede Neural)"])
     
     with tab1:
         st.header("Visão Geral do Desempenho Educacional")
@@ -545,6 +835,87 @@ def main():
                                     st.rerun()
                                 else:
                                     st.error("Erro ao deletar usuário.")
+                                    
+    with tab4:
+        st.header("🧠 Monitoramento de Agentes e Rede Neural da IA")
+        st.markdown("Acompanhe em tempo real o fluxo de decisões, rotas e ativações socráticas que a inteligência artificial do MatemAI executa.")
+        
+        # Load AI Logs
+        with st.spinner("Carregando logs da IA..."):
+            ai_logs = db.get_ai_logs(limit=25)
+            
+        if not ai_logs:
+            st.info("Nenhuma chamada de IA registrada no banco de dados ainda. O sistema passará a armazenar e mapear as ativações a partir de novos usos.")
+            
+            # Show empty/idle neural network
+            html_code = get_neural_network_html(None, False)
+            st.components.v1.html(html_code, height=400)
+        else:
+            # Layout
+            col_net, col_info = st.columns([5, 4])
+            
+            # Create list of labels
+            log_labels = []
+            for idx, log in enumerate(ai_logs):
+                status_emoji = "🟢" if log['status'] == "success" else "🔴"
+                log_labels.append(f"{status_emoji} [{log['timestamp']}] {log['function_name']} ({log['model_name']}) - Latência: {log['duration']:.2f}s")
+                
+            selected_log_label = st.selectbox(
+                "Selecione uma Transação para Visualização:", 
+                log_labels,
+                index=0
+            )
+            
+            selected_idx = log_labels.index(selected_log_label)
+            selected_log = ai_logs[selected_idx]
+            
+            with col_net:
+                st.markdown("#### Ativações da Rede Neural de Processamento")
+                is_fallback = selected_log['status'] == "fallback"
+                html_code = get_neural_network_html(selected_log['function_name'], is_fallback)
+                st.components.v1.html(html_code, height=400)
+                
+            with col_info:
+                st.markdown("#### Detalhes do Raciocínio (Sinapse)")
+                
+                status_color = "#10B981" if selected_log['status'] == "success" else "#EF4444"
+                status_text = "SUCESSO" if selected_log['status'] == "success" else "FALLBACK ATIVADO"
+                
+                st.markdown(f"""
+                <div style="background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #1e293b; color: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span style="font-weight: bold; color: {status_color}; font-size: 14px;">● {status_text}</span>
+                        <span style="font-size: 12px; color: #94a3b8;">{selected_log['timestamp']}</span>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <span style="color: #94a3b8; font-size: 12px;">FUNÇÃO EXECUTADA</span><br>
+                        <strong style="color: #38bdf8; font-size: 16px;">{selected_log['function_name']}</strong>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <span style="color: #94a3b8; font-size: 12px;">MODELO LLM</span><br>
+                        <strong style="color: #a855f7;">{selected_log['model_name']}</strong>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <span style="color: #94a3b8; font-size: 12px;">LATÊNCIA / VELOCIDADE</span><br>
+                        <strong>⏱️ {selected_log['duration']:.3f} segundos</strong>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                st.write("")
+                with st.expander("📥 Parâmetros de Entrada (Input Context)", expanded=True):
+                    st.code(selected_log['input'], language="text")
+                    
+                with st.expander("📤 Resposta Gerada (Output JSON/Text)", expanded=True):
+                    st.code(selected_log['output'], language="json" if selected_log['output'].strip().startswith("{") or selected_log['output'].strip().startswith("[") else "text")
+            
+            st.markdown("### 📋 Histórico Recente de Transações da IA")
+            log_df = pd.DataFrame(ai_logs)
+            st.dataframe(
+                log_df[['timestamp', 'function_name', 'model_name', 'status', 'duration']],
+                use_container_width=True,
+                hide_index=True
+            )
 
 if __name__ == "__main__":
     main()

@@ -402,6 +402,54 @@ class FirestoreDB:
             st.error(f"Erro ao atualizar usuário: {e}")
             return False
 
+    def log_ai_call(self, function_name, model_name, status, input_summary, output_summary, duration):
+        """Logs an AI call to Firestore for monitoring and visual neural network representation"""
+        if not self.db:
+            return False
+            
+        try:
+            self.db.collection('ai_logs').add({
+                'timestamp': datetime.now(),
+                'function_name': function_name,
+                'model_name': model_name,
+                'status': status,
+                'input': input_summary,
+                'output': output_summary,
+                'duration': duration
+            })
+            return True
+        except Exception as e:
+            print(f"Error logging AI call: {e}")
+            return False
+
+    def get_ai_logs(self, limit=20):
+        """Retrieves the recent AI call logs from Firestore"""
+        if not self.db:
+            return []
+            
+        try:
+            docs = self.db.collection('ai_logs').order_by('timestamp', direction=firestore.Query.DESCENDING).limit(limit).stream()
+            logs = []
+            for doc in docs:
+                data = doc.to_dict()
+                ts = data.get('timestamp')
+                ts_str = ts.strftime("%Y-%m-%d %H:%M:%S") if isinstance(ts, datetime) else str(ts)
+                
+                logs.append({
+                    'id': doc.id,
+                    'timestamp': ts_str,
+                    'function_name': data.get('function_name', 'N/A'),
+                    'model_name': data.get('model_name', 'N/A'),
+                    'status': data.get('status', 'N/A'),
+                    'input': data.get('input', 'N/A'),
+                    'output': data.get('output', 'N/A'),
+                    'duration': data.get('duration', 0.0)
+                })
+            return logs
+        except Exception as e:
+            print(f"Error getting AI logs: {e}")
+            return []
+
 # Singleton instance
 @st.cache_resource
 def get_database():

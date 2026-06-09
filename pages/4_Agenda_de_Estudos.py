@@ -182,6 +182,7 @@ with col_year:
 st.markdown(f"### {calendar.month_name[selected_month]} {selected_year}")
 
 # Get calendar for selected month
+calendar.setfirstweekday(calendar.SUNDAY)
 cal = calendar.monthcalendar(selected_year, selected_month)
 
 # Create calendar HTML

@@ -3,6 +3,22 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import json
 import re
+import time
+import threading
+
+def log_ai_call_background(function_name, model_name, status, input_summary, output_summary, duration):
+    from database import get_database
+    try:
+        db = get_database()
+        if db:
+            threading.Thread(
+                target=db.log_ai_call,
+                args=(function_name, model_name, status, input_summary, output_summary, duration),
+                daemon=True
+            ).start()
+    except Exception as e:
+        print(f"Error logging AI call in thread: {e}")
+
 
 # Load environment variables
 load_dotenv()
@@ -62,6 +78,7 @@ class MathAI:
                     }
                 )
                 response = model.generate_content(prompt)
+                self.last_used_model = model_name
                 return response
             except Exception as e:
                 error_str = str(e).lower()
@@ -108,6 +125,7 @@ class MathAI:
         self.current_model_index = 0
         preferred_model = self.models_pool[0]
         model = genai.GenerativeModel(preferred_model)
+        self.last_used_model = preferred_model
         return model.generate_content(prompt)
     
     def get_completed_bncc_skills_summary(self, completed_skills_dict):
@@ -134,10 +152,17 @@ Perfil: Nome={profile_data.get('name')}, Idade={profile_data.get('age')}, Confia
 JSON (sem markdown):
 {{"methodology": "Nome da Metodologia", "description": "Breve explicação (1 frase)"}}"""
         
+        start_time = time.time()
+        input_summary = f"Perfil: Nome={profile_data.get('name')}, Idade={profile_data.get('age')}, Confiança={profile_data.get('confidence')}"
         try:
             response = self._generate_with_fallback(prompt)
-            return json.loads(self._clean_json(response.text))
+            result = json.loads(self._clean_json(response.text))
+            duration = time.time() - start_time
+            log_ai_call_background("generate_methodology", getattr(self, "last_used_model", "N/A"), "success", input_summary, f"Metodologia: {result.get('methodology')}", duration)
+            return result
         except Exception as e:
+            duration = time.time() - start_time
+            log_ai_call_background("generate_methodology", getattr(self, "last_used_model", "N/A"), "fallback", input_summary, "Fallback: Gamificação", duration)
             print(f"Error generating methodology: {e}")
             return {"methodology": "Gamificação", "description": "Aprendizado através de desafios e recompensas."}
 
@@ -167,10 +192,17 @@ Gere o output estritamente no seguinte formato JSON (sem markdown):
   {{"id": 3, "title": "Título criativo e contextualizado", "desc": "Objetivo lúdico da missão", "xp": 200, "status": "locked"}}
 ]"""
         
+        start_time = time.time()
+        input_summary = f"Metodologia: {methodology}, Nível: {level}, Interesses: {interests[:40]}"
         try:
             response = self._generate_with_fallback(prompt)
-            return json.loads(self._clean_json(response.text))
+            result = json.loads(self._clean_json(response.text))
+            duration = time.time() - start_time
+            log_ai_call_background("generate_missions", getattr(self, "last_used_model", "N/A"), "success", input_summary, f"Geradas {len(result)} missões", duration)
+            return result
         except Exception as e:
+            duration = time.time() - start_time
+            log_ai_call_background("generate_missions", getattr(self, "last_used_model", "N/A"), "fallback", input_summary, "Fallback: Lista vazia", duration)
             print(f"Error generating missions: {e}")
             return []
 
@@ -180,10 +212,17 @@ Gere o output estritamente no seguinte formato JSON (sem markdown):
         """
         prompt = f"Escreva uma saudação curta, motivadora e acolhedora para {name}. Use emojis. Máximo 2 frases."
         
+        start_time = time.time()
+        input_summary = f"Nome: {name}"
         try:
             response = self._generate_with_fallback(prompt)
-            return response.text.strip()
+            result_text = response.text.strip()
+            duration = time.time() - start_time
+            log_ai_call_background("generate_greeting", getattr(self, "last_used_model", "N/A"), "success", input_summary, f"Saudação: {result_text[:50]}...", duration)
+            return result_text
         except Exception as e:
+            duration = time.time() - start_time
+            log_ai_call_background("generate_greeting", getattr(self, "last_used_model", "N/A"), "fallback", input_summary, f"Fallback: Olá, {name}!", duration)
             print(f"Error generating greeting: {e}")
             return f"Olá, {name}! Pronto para uma aventura matemática? 🚀"
 
@@ -209,12 +248,23 @@ Gere a resposta estritamente no seguinte formato JSON (sem markdown):
   "solution": "A resposta exata (número ou palavra muito curta)"
 }}"""
         
+        start_time = time.time()
+        input_summary = f"Missão: {mission_title[:40]}, Nível: {level}"
         try:
             response = self._generate_with_fallback(prompt)
-            return json.loads(self._clean_json(response.text))
+            result = json.loads(self._clean_json(response.text))
+            duration = time.time() - start_time
+            log_ai_call_background("generate_problem", getattr(self, "last_used_model", "N/A"), "success", input_summary, f"Q: {result.get('question')[:40]}... | Sol: {result.get('solution')}", duration)
+            return result
         except Exception as e:
+            duration = time.time() - start_time
+            log_ai_call_background("generate_problem", getattr(self, "last_used_model", "N/A"), "fallback", input_summary, "Fallback: Questão de Música", duration)
             print(f"Error generating problem: {e}")
-            return {"question": "Quanto é 2 + 2?", "hint": "Conte nos dedos!", "solution": "4"}
+            return {
+                "question": "*Em uma linda orquestra escolar, os alunos estão aprendendo sobre o tempo musical. Um compasso quaternário (4/4) é formado por exatamente 4 tempos (ou batidas). Se o grupo de flautas doces tocar uma melodia simples que dura exatamente 3 compassos desse tipo, quantas batidas de tempo eles terão contado no total para manter o ritmo perfeito da canção?",
+                "hint": "Dica Socrática: Se 1 compasso tem 4 batidas, 2 compassos teriam 4 + 4 = 8 batidas. Como você calcularia o total para 3 compassos?",
+                "solution": "12"
+            }
 
     def get_bncc_alignment(self, mission_title, mission_desc, school_year, level):
         """
@@ -227,10 +277,17 @@ Ano/Série: {school_year}
 Gere a resposta estritamente no seguinte formato JSON (sem markdown):
 {{"competencia": "Competência X", "competencia_texto": "Texto da Competência", "habilidade": "EFXXMAXX", "habilidade_texto": "Descrição oficial da habilidade"}}"""
         
+        start_time = time.time()
+        input_summary = f"Título: {mission_title[:40]}, Série: {school_year}"
         try:
             response = self._generate_with_fallback(prompt)
-            return json.loads(self._clean_json(response.text))
+            result = json.loads(self._clean_json(response.text))
+            duration = time.time() - start_time
+            log_ai_call_background("get_bncc_alignment", getattr(self, "last_used_model", "N/A"), "success", input_summary, f"Habilidade: {result.get('habilidade')}", duration)
+            return result
         except Exception as e:
+            duration = time.time() - start_time
+            log_ai_call_background("get_bncc_alignment", getattr(self, "last_used_model", "N/A"), "fallback", input_summary, "Fallback: EF06MA01", duration)
             print(f"Error getting BNCC alignment: {e}")
             return {
                 "competencia": "Competência 1",
@@ -273,6 +330,8 @@ Gere a resposta estritamente no seguinte formato JSON (sem markdown):
   "feedback": "Seu feedback socrático e motivador formatado com markdown"
 }}"""
         
+        start_time = time.time()
+        input_summary = f"Q: {question[:30]}... | R: {user_answer} | Exp: {expected_answer}"
         try:
             response = self._generate_with_fallback(prompt)
             response_text = response.text.strip()
@@ -281,6 +340,8 @@ Gere a resposta estritamente no seguinte formato JSON (sem markdown):
             try:
                 result = json.loads(self._clean_json(response_text))
                 if "correct" in result and "feedback" in result:
+                    duration = time.time() - start_time
+                    log_ai_call_background("validate_answer", getattr(self, "last_used_model", "N/A"), "success", input_summary, f"Correct: {result.get('correct')} | Tipo Erro: {result.get('error_type')}", duration)
                     return result
             except json.JSONDecodeError:
                 pass
@@ -290,6 +351,8 @@ Gere a resposta estritamente no seguinte formato JSON (sem markdown):
             correct_indicators = ["correto", "certo", "parabéns", "excelente", "perfeito", "acertou"]
             is_correct = any(ind in response_lower for ind in correct_indicators)
             
+            duration = time.time() - start_time
+            log_ai_call_background("validate_answer", getattr(self, "last_used_model", "N/A"), "success", input_summary, f"Text check: correct={is_correct}", duration)
             if is_correct:
                 # Use the generated text as feedback if it seems reasonable, otherwise fallback
                 feedback = response_text if len(response_text) > 10 else "Parabéns! Resposta correta! 🎉"
@@ -298,6 +361,8 @@ Gere a resposta estritamente no seguinte formato JSON (sem markdown):
                 return {"correct": False, "feedback": response_text}
                 
         except Exception as e:
+            duration = time.time() - start_time
+            log_ai_call_background("validate_answer", getattr(self, "last_used_model", "N/A"), "fallback", input_summary, f"Fallback: Exception={type(e).__name__}", duration)
             print(f"Error validating answer: {e}")
             
             # Deterministic fallback: Compare with expected_answer if available
@@ -346,10 +411,17 @@ Gere o output estritamente no seguinte formato JSON (sem markdown):
   "status": "locked"
 }}"""
         
+        start_time = time.time()
+        input_summary = f"Última Missão: {last_mission_title[:30]}... | Nível: {level}"
         try:
             response = self._generate_with_fallback(prompt)
-            return json.loads(self._clean_json(response.text))
+            result = json.loads(self._clean_json(response.text))
+            duration = time.time() - start_time
+            log_ai_call_background("generate_next_mission", getattr(self, "last_used_model", "N/A"), "success", input_summary, f"Próxima: {result.get('title')}", duration)
+            return result
         except Exception as e:
+            duration = time.time() - start_time
+            log_ai_call_background("generate_next_mission", getattr(self, "last_used_model", "N/A"), "fallback", input_summary, "Fallback: Nova Aventura", duration)
             print(f"Error generating next mission: {e}")
             return {"title": "Nova Aventura", "desc": "Continue sua jornada!", "xp": xp, "status": "locked"}
 
