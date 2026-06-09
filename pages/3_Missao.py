@@ -78,11 +78,30 @@ display_seconds = total_seconds % 60
 st.title(f"⚔️ Missão: {mission['title']}")
 st.markdown(f"**Objetivo:** {mission['desc']}")
     
-st.markdown(f"""
-<div style="display: inline-block; background: #E3F2FD; padding: 5px 15px; border-radius: 20px; border: 1px solid #2196F3; margin-bottom: 10px;">
-    <span style="font-size: 14px; font-weight: bold; color: #1565C0;">⏱️ Tempo Hoje: {display_minutes:02d}:{display_seconds:02d}</span>
+st.html(f"""
+<div style="display: inline-block; background: #E3F2FD; padding: 5px 15px; border-radius: 20px; border: 1px solid #2196F3; margin-bottom: 10px; font-family: sans-serif;">
+    <span id="study-timer" style="font-size: 14px; font-weight: bold; color: #1565C0;">⏱️ Tempo Hoje: {display_minutes:02d}:{display_seconds:02d}</span>
 </div>
-""", unsafe_allow_html=True)
+<script>
+    (function() {{
+        let totalSeconds = {total_seconds};
+        const timerElement = document.getElementById("study-timer");
+        if (timerElement) {{
+            if (window.studyTimerInterval) {{
+                clearInterval(window.studyTimerInterval);
+            }}
+            window.studyTimerInterval = setInterval(() => {{
+                totalSeconds++;
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                const padMin = String(minutes).padStart(2, '0');
+                const padSec = String(seconds).padStart(2, '0');
+                timerElement.innerText = "⏱️ Tempo Hoje: " + padMin + ":" + padSec;
+            }}, 1000);
+        }}
+    }})();
+</script>
+""")
 
 # Get and display BNCC alignment
 school_year = st.session_state.user_profile.get("school_year", "6º ano") if st.session_state.user_profile else "6º ano"
